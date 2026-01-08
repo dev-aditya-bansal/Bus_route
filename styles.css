@@ -19,11 +19,16 @@ body {
     background: white; padding: 16px; border-radius: 16px;
     display: flex; gap: 8px; margin-bottom: 16px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    flex-wrap: wrap;
 }
 button {
     flex: 1; padding: 14px 12px; font-size: 16px; font-weight: 600;
     border: none; border-radius: 12px; cursor: pointer;
     min-height: 48px; transition: all 0.2s;
+}
+.view-toggle-btn {
+    background: #9C27B0; color: white;
+    flex: 0 0 auto; min-width: 120px;
 }
 #play { background: #4CAF50; color: white; }
 #pause { background: #f44336; color: white; display: none; }
@@ -36,43 +41,199 @@ button:active { transform: scale(0.98); }
     background: #e8f5e8; border-radius: 8px; margin-bottom: 16px;
 }
 
+.view-container {
+    height: 280px; width: 100%;
+    border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    margin-bottom: 16px; overflow: hidden;
+    position: relative;
+}
+
 #map {
     height: 280px; width: 100%;
     border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);
     margin-bottom: 16px; overflow: hidden;
 }
 
+@keyframes pulse {
+    0%, 100% { transform: translateY(-50%) scale(1); opacity: 1; }
+    50% { transform: translateY(-50%) scale(1.2); opacity: 0.8; }
+}
+
 .eta-panel {
     background: white; border-radius: 16px; padding: 20px 16px;
     box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    position: relative;
 }
 .eta-header {
     text-align: center; margin-bottom: 20px; 
     color: #333; font-size: 1.1rem; font-weight: 700;
     padding-bottom: 12px; border-bottom: 2px solid #e0e0e0;
 }
-.eta-list { display: flex; flex-direction: column; gap: 12px; }
-.eta-item {
-    padding: 16px 12px; border-radius: 12px;
-    background: #f8f9fa; border-left: 4px solid #4CAF50;
-    transition: all 0.2s;
+.eta-list { 
+    position: relative;
+    padding-left: 50px;
+    min-height: 200px;
 }
+
+/* Hide line view elements when map view is active */
+.map-view-active .eta-list {
+    padding-left: 0;
+}
+
+.map-view-active .route-line-integrated {
+    display: none;
+}
+
+.map-view-active .bus-icon-integrated {
+    display: none;
+}
+
+.map-view-active .eta-item::before {
+    display: none;
+}
+
+.map-view-active .eta-item {
+    padding-left: 12px;
+}
+
+/* Integrated Route Line */
+.route-line-integrated {
+    position: absolute;
+    left: 14px;
+    top: 0;
+    width: 14px;
+    z-index: 1;
+}
+
+.route-line-track {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: #e0e0e0;
+    border-radius: 4px;
+    z-index: 1;
+}
+
+.route-line-covered-integrated {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: #e74c3c;
+    height: 0;
+    border-radius: 4px;
+    transition: height 0.1s linear;
+    z-index: 2;
+}
+
+.bus-icon-integrated {
+    position: absolute;
+    left: 21px;
+    top: 0;
+    transform: translateX(-50%) translateY(-50%);
+    font-size: 20px;
+    z-index: 30;
+    transition: top 0.1s linear;
+    line-height: 1;
+    width: 36px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e74c3c;
+    border-radius: 6px;
+    box-shadow: 0 3px 10px rgba(231, 76, 60, 0.4);
+    color: white;
+    font-weight: bold;
+}
+
+.eta-item {
+    position: relative;
+    padding: 16px 12px 16px 50px;
+    border-radius: 12px;
+    background: white;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.2s;
+    z-index: 10;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.eta-item::before {
+    content: '';
+    position: absolute;
+    left: -40px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #2196F3;
+    border: 4px solid #f5f5f5;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    z-index: 20;
+}
+
 .eta-item.current { 
-    background: #fff3cd; border-left-color: #f57c00;
+    background: #fff3cd;
     box-shadow: 0 4px 12px rgba(245,124,0,0.2);
 }
-.eta-item.next { border-left-color: #2196F3; }
-.stop-info { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
-.stop-number {
-    width: 32px; height: 32px; border-radius: 50%;
-    background: #4CAF50; color: white; font-weight: 700;
-    font-size: 14px; display: flex; align-items: center; justify-content: center;
+
+.eta-item.current::before {
+    background: #f57c00;
+    animation: pulse 1.5s infinite;
 }
-.eta-item.current .stop-number { background: #f57c00; }
-.eta-item.next .stop-number { background: #2196F3; }
-.stop-name { font-weight: 600; font-size: 15px; color: #333; flex: 1; }
-.eta-time { font-size: 20px; font-weight: 700; color: #2E7D32; margin-bottom: 2px; }
-.eta-progress { font-size: 13px; color: #666; }
+
+.eta-item.passed::before {
+    background: #4CAF50;
+}
+
+.eta-item.next::before {
+    background: #2196F3;
+}
+
+.stop-info { 
+    display: flex; 
+    align-items: flex-start; 
+    gap: 12px; 
+    margin-bottom: 8px; 
+}
+
+.stop-info-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stop-icon-small {
+    font-size: 18px;
+    color: #666;
+}
+
+.stop-name { 
+    font-weight: 600; 
+    font-size: 15px; 
+    color: #333; 
+    flex: 1; 
+    line-height: 1.4;
+}
+
+.eta-time { 
+    font-size: 18px; 
+    font-weight: 700; 
+    color: #2E7D32; 
+    margin-bottom: 4px; 
+}
+
+.eta-progress { 
+    font-size: 13px; 
+    color: #666; 
+}
 
 .bus-icon { 
     background: transparent; font-size: 28px; 
@@ -90,4 +251,6 @@ button:active { transform: scale(0.98); }
 @media (min-width: 768px) {
     .container { max-width: 800px; }
     #map { height: 400px; }
+    .view-container { height: 400px; }
+    #lineView { height: 400px; }
 }

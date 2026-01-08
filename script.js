@@ -35,8 +35,126 @@ let currentStopIndex = -1; // -1 means not determined yet
 let stopETAs = {}; // Store ETA in seconds for each stop index
 let isCalculatingETA = false; // Prevent multiple simultaneous ETA calculations
 
+// View toggle variables
+let currentView = 'map'; // 'map' or 'line'
+
+// Toggle between map and line view (now just toggles map visibility)
+function toggleView() {
+    const mapView = document.getElementById('map');
+    const etaPanel = document.querySelector('.eta-panel');
+    const container = document.querySelector('.container');
+    const toggleIcon = document.getElementById('viewToggleIcon');
+    const toggleText = document.getElementById('viewToggleText');
+    
+    if (currentView === 'map') {
+        // Hide map view - show line view in ETA panel
+        mapView.style.display = 'none';
+        if (container) container.classList.remove('map-view-active');
+        currentView = 'line';
+        toggleIcon.textContent = '🗺️';
+        toggleText.textContent = 'Map View';
+    } else {
+        // Show map view - hide line view in ETA panel
+        mapView.style.display = 'block';
+        if (container) container.classList.add('map-view-active');
+        currentView = 'map';
+        toggleIcon.textContent = '📋';
+        toggleText.textContent = 'Line View';
+    }
+    
+    // Update bus position after view change (only if line view is active)
+    if (currentView === 'line') {
+        updateIntegratedLineBusPosition();
+    }
+}
+
+// Update bus position in integrated line view based on current animation state
+function updateIntegratedLineBusPosition() {
+    // Only update if line view is active
+    if (currentView !== 'line') return;
+    
+    const busIcon = document.querySelector('.bus-icon-integrated');
+    const routeLineCovered = document.querySelector('.route-line-covered-integrated');
+    const routeLineTrack = document.querySelector('.route-line-track');
+    const routeLineIntegrated = document.querySelector('.route-line-integrated');
+    const etaList = document.getElementById('eta-list');
+    
+    if (!busIcon || !routeLineCovered || !routeLineTrack || !routeLineIntegrated || !etaList) return;
+    
+    const etaItems = etaList.querySelectorAll('.eta-item');
+    if (etaItems.length === 0) return;
+    
+    // Calculate positions of each stop (center of each item)
+    const stopPositions = [];
+    let currentTop = 0;
+    
+    etaItems.forEach((item, i) => {
+        const height = item.offsetHeight;
+        const centerY = currentTop + height / 2;
+        stopPositions.push(centerY);
+        currentTop += height;
+        if (i < etaItems.length - 1) {
+            currentTop += 12; // gap between items
+        }
+    });
+    
+    // First stop position (start of line)
+    const firstStopY = stopPositions[0];
+    // Last stop position (end of line)
+    const lastStopY = stopPositions[stopPositions.length - 1];
+    // Line height
+    const lineHeight = lastStopY - firstStopY;
+    
+    // Update route line position and height
+    routeLineIntegrated.style.top = firstStopY + 'px';
+    routeLineIntegrated.style.bottom = 'auto';
+    routeLineIntegrated.style.height = lineHeight + 'px';
+    
+    routeLineTrack.style.top = '0';
+    routeLineTrack.style.bottom = 'auto';
+    routeLineTrack.style.height = '100%';
+    
+    // Calculate current bus position relative to the line
+    let busPositionOnLine = 0;
+    
+    if (index < route.length - 1) {
+        // Bus is between stops
+        const segmentProgress = step / STEPS_PER_SEGMENT;
+        const currentStopY = stopPositions[index];
+        const nextStopY = stopPositions[index + 1];
+        busPositionOnLine = currentStopY + (nextStopY - currentStopY) * segmentProgress;
+    } else {
+        // Bus is at or past the last stop
+        busPositionOnLine = stopPositions[route.length - 1];
+    }
+    
+    // Convert bus position to position relative to line start
+    // busPositionOnLine is relative to eta-list top
+    // route-line-integrated starts at firstStopY (relative to eta-list)
+    // So bus position relative to route-line-integrated is: busPositionOnLine - firstStopY
+    const busPositionFromLineStart = busPositionOnLine - firstStopY;
+    
+    // Update bus icon position
+    // bus-icon-integrated is now a direct child of eta-list, so its top is relative to eta-list
+    busIcon.style.top = busPositionOnLine + 'px';
+    busIcon.style.bottom = 'auto';
+    busIcon.style.transform = 'translateX(-50%) translateY(-50%)';
+    
+    // Update covered line height - it should end exactly at the bus icon center
+    // The red line is inside route-line-integrated, so it uses busPositionFromLineStart
+    routeLineCovered.style.top = '0';
+    routeLineCovered.style.bottom = 'auto';
+    routeLineCovered.style.height = Math.max(0, busPositionFromLineStart) + 'px';
+}
+
 // Initialize map
 function initMap() {
+    // Set initial view state - map view is active by default
+    const container = document.querySelector('.container');
+    if (container) {
+        container.classList.add('map-view-active');
+    }
+    
     if (route.length === 0) { 
         document.getElementById('eta-list').innerHTML = '<div style="text-align:center;color:#666;">No route data</div>';
         return; 
@@ -92,7 +210,9 @@ function updateETAList() {
     const etaList = document.getElementById('eta-list');
     if (!etaList) return;
     
-    etaList.innerHTML = '';
+    // Keep the route line structure, only update stop items
+    const existingItems = etaList.querySelectorAll('.eta-item');
+    existingItems.forEach(item => item.remove());
     
     const now = Date.now();
     
@@ -104,9 +224,10 @@ function updateETAList() {
         // Determine if this is the current stop based on live location
         const isCurrentStop = (currentStopIndex >= 0 && i === currentStopIndex);
         const isNextStop = (currentStopIndex >= 0 && i === currentStopIndex + 1);
+        const hasPassed = i < currentStopIndex || (currentStopIndex < 0 && i < index);
         const hasETA = stopETAs[i] !== undefined;
         
-        if (i < currentStopIndex || (currentStopIndex < 0 && i < index)) {
+        if (hasPassed) {
             // Past stops
             etaDisplay = '✅ Arrived';
             progressText = '✅ Done';
@@ -140,17 +261,32 @@ function updateETAList() {
         }
         
         const item = document.createElement('div');
-        item.className = `eta-item ${isCurrentStop ? 'current' : isNextStop ? 'next' : ''}`;
+        let itemClass = 'eta-item';
+        if (hasPassed) {
+            itemClass += ' passed';
+        } else if (isCurrentStop) {
+            itemClass += ' current';
+        } else if (isNextStop) {
+            itemClass += ' next';
+        }
+        item.className = itemClass;
         item.innerHTML = `
             <div class="stop-info">
-                <div class="stop-number">${stop.sequence}</div>
-                <div class="stop-name">${stop.stop_name}</div>
+                <div class="stop-info-left">
+                    <i class="bi bi-bus-front stop-icon-small"></i>
+                    <div class="stop-name">${stop.stop_name}</div>
+                </div>
             </div>
             <div class="eta-time">${etaDisplay}</div>
             <div class="eta-progress">${progressText}</div>
         `;
         etaList.appendChild(item);
     });
+    
+    // Update bus position after items are added (with small delay to ensure DOM is updated)
+    setTimeout(() => {
+        updateIntegratedLineBusPosition();
+    }, 10);
 }
 
 function animateBus() {
@@ -207,6 +343,9 @@ function animateBus() {
 
     busMarker.setLatLng([lat, lng]);
     map.panTo([lat, lng]);
+    
+    // Update integrated line view
+    updateIntegratedLineBusPosition();
 
     if (fraction >= 1) {
         step = 0;
@@ -256,6 +395,8 @@ function togglePlay() {
     document.getElementById('pause').style.display = 'inline-block';
     updateStatus('Bus moving...');
     updateETAList();
+    // Update integrated line view
+    updateIntegratedLineBusPosition();
     animateBus();
 }
 
@@ -275,6 +416,8 @@ function resetBus() {
     // Just reset animation state
     updateETAList();
     updateStatus('Reset - Live tracking continues');
+    // Update integrated line view
+    updateIntegratedLineBusPosition();
 }
 
 function updateStatus(msg) {
@@ -489,6 +632,14 @@ async function fetchLiveLocation() {
                 // Update bus marker position
                 busMarker.setLatLng([lat, lng]);
                 map.panTo([lat, lng], { animate: true, duration: 0.5 });
+                
+                // Update integrated line view
+                const animPos = calculateAnimationPositionFromLiveLocation(lat, lng);
+                if (animPos) {
+                    index = animPos.index;
+                    step = animPos.step;
+                    updateIntegratedLineBusPosition();
+                }
                 
                 // Determine current stop
                 const detectedStopIndex = determineCurrentStop(lat, lng);
