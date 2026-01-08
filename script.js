@@ -134,14 +134,55 @@ function updateIntegratedLineBusPosition() {
     // So bus position relative to route-line-integrated is: busPositionOnLine - firstStopY
     const busPositionFromLineStart = busPositionOnLine - firstStopY;
     
-    // Update bus icon position
+    // Calculate transition duration based on ETA (same as map view animation)
+    // Use currentSegmentDuration if available (set by animateBus), otherwise calculate it
+    let transitionDuration = 0.1; // Default fallback in seconds
+    
+    if (index < route.length - 1 && isPlaying) {
+        let segmentDuration = currentSegmentDuration; // Use the same duration as map view animation
+        
+        // If currentSegmentDuration is not set or is the default, calculate it
+        if (!segmentDuration || segmentDuration === DURATION_PER_SEGMENT) {
+            const nextStopIndex = index + 1;
+            segmentDuration = DURATION_PER_SEGMENT; // Default fallback
+            
+            if (stopETAs[nextStopIndex] !== undefined) {
+                // ETA is in seconds, convert to milliseconds
+                segmentDuration = stopETAs[nextStopIndex] * 1000;
+                segmentDuration = Math.max(segmentDuration, 1000); // At least 1 second
+            } else {
+                // If no ETA available, calculate distance-based estimate
+                const startPoint = route[index];
+                const endPoint = route[index + 1];
+                const startLat = parseFloat(startPoint.lat);
+                const startLng = parseFloat(startPoint.lng);
+                const endLat = parseFloat(endPoint.lat);
+                const endLng = parseFloat(endPoint.lng);
+                const distance = calculateDistance(startLat, startLng, endLat, endLng);
+                // Estimate: assume average speed of 40 km/h (11.11 m/s) for urban routes
+                const estimatedSeconds = distance / 11.11;
+                segmentDuration = estimatedSeconds * 1000;
+                segmentDuration = Math.max(segmentDuration, 1000); // At least 1 second
+                segmentDuration = Math.min(segmentDuration, 60000); // Max 60 seconds per segment
+            }
+        }
+        
+        // Calculate delay per step (same as animateBus function)
+        const delay = segmentDuration / STEPS_PER_SEGMENT;
+        // Convert to seconds for CSS transition
+        transitionDuration = delay / 1000;
+    }
+    
+    // Update bus icon position with ETA-based transition duration
     // bus-icon-integrated is now a direct child of eta-list, so its top is relative to eta-list
+    busIcon.style.transition = `top ${transitionDuration}s linear`;
     busIcon.style.top = busPositionOnLine + 'px';
     busIcon.style.bottom = 'auto';
     busIcon.style.transform = 'translateX(-50%) translateY(-50%)';
     
-    // Update covered line height - it should end exactly at the bus icon center
+    // Update covered line height with ETA-based transition duration
     // The red line is inside route-line-integrated, so it uses busPositionFromLineStart
+    routeLineCovered.style.transition = `height ${transitionDuration}s linear`;
     routeLineCovered.style.top = '0';
     routeLineCovered.style.bottom = 'auto';
     routeLineCovered.style.height = Math.max(0, busPositionFromLineStart) + 'px';
@@ -290,12 +331,18 @@ function updateETAList() {
 }
 
 function animateBus() {
-    if (!isPlaying || index >= route.length - 1) {
-        if (index >= route.length - 1) {
-            index = 0; step = 0;
-            updateStatus('Route complete!');
-            updateETAList();
-        }
+    if (!isPlaying) {
+        return;
+    }
+    
+    // Check if we've reached the end of the route
+    if (index >= route.length - 1) {
+        // Route complete - stop animation, don't restart
+        isPlaying = false;
+        document.getElementById('play').style.display = 'inline-block';
+        document.getElementById('pause').style.display = 'none';
+        updateStatus('Route complete!');
+        updateETAList();
         return;
     }
 
@@ -304,14 +351,16 @@ function animateBus() {
     
     // Calculate segment duration based on ETA for the next stop
     const nextStopIndex = index + 1;
-    let segmentDuration = DURATION_PER_SEGMENT; // Default fallback
+    let fullSegmentDuration = DURATION_PER_SEGMENT; // Default fallback
     
-    if (stopETAs[nextStopIndex] !== undefined) {
+    if (stopETAs[nextStopIndex] !== undefined && stopETAs[nextStopIndex] > 0) {
         // ETA is in seconds, convert to milliseconds
-        // This ETA is from current location to next stop, which is what we want for animation
-        segmentDuration = stopETAs[nextStopIndex] * 1000;
+        // This ETA is from current live location to next stop
+        // If we're partway through the segment, we need to adjust
+        fullSegmentDuration = stopETAs[nextStopIndex] * 1000;
         // Ensure minimum duration to avoid too fast animation
-        segmentDuration = Math.max(segmentDuration, 1000); // At least 1 second
+        fullSegmentDuration = Math.max(fullSegmentDuration, 1000); // At least 1 second
+        console.log(`Using ETA for stop ${nextStopIndex + 1}: ${Math.round(stopETAs[nextStopIndex])}s (${Math.round(fullSegmentDuration/1000)}s animation)`);
     } else {
         // If no ETA available, calculate distance-based estimate
         const startLat = parseFloat(startPoint.lat);
@@ -321,23 +370,37 @@ function animateBus() {
         const distance = calculateDistance(startLat, startLng, endLat, endLng);
         // Estimate: assume average speed of 40 km/h (11.11 m/s) for urban routes
         const estimatedSeconds = distance / 11.11;
-        segmentDuration = estimatedSeconds * 1000;
-        segmentDuration = Math.max(segmentDuration, 1000); // At least 1 second
+        fullSegmentDuration = estimatedSeconds * 1000;
+        fullSegmentDuration = Math.max(fullSegmentDuration, 1000); // At least 1 second
         // Also set a reasonable maximum to avoid very long animations
-        segmentDuration = Math.min(segmentDuration, 60000); // Max 60 seconds per segment
+        fullSegmentDuration = Math.min(fullSegmentDuration, 60000); // Max 60 seconds per segment
+        console.log(`No ETA available for stop ${nextStopIndex + 1}, using distance estimate: ${Math.round(fullSegmentDuration/1000)}s`);
+    }
+    
+    // Calculate remaining duration for current segment
+    // If step > 0, we're partway through the segment, so calculate remaining time
+    let remainingDuration = fullSegmentDuration;
+    if (step > 0) {
+        // Calculate how much of the segment is remaining
+        const progress = step / STEPS_PER_SEGMENT;
+        remainingDuration = fullSegmentDuration * (1 - progress);
+        // Ensure minimum remaining duration
+        remainingDuration = Math.max(remainingDuration, 100); // At least 100ms
     }
     
     // Update current segment duration (only at start of segment)
     if (step === 0) {
-        currentSegmentDuration = segmentDuration;
+        currentSegmentDuration = fullSegmentDuration;
     }
     
-    // Calculate delay based on current segment duration
-    const delay = currentSegmentDuration / STEPS_PER_SEGMENT;
+    // Calculate delay based on remaining duration for current step
+    // If we're partway through, use remaining duration; otherwise use full segment duration
+    const stepsRemaining = STEPS_PER_SEGMENT - step;
+    const delay = stepsRemaining > 0 ? remainingDuration / stepsRemaining : remainingDuration;
     
     step++;
     const fraction = Math.min(step / STEPS_PER_SEGMENT, 1);
-    
+
     const lat = parseFloat(startPoint.lat) + (parseFloat(endPoint.lat) - parseFloat(startPoint.lat)) * fraction;
     const lng = parseFloat(startPoint.lng) + (parseFloat(endPoint.lng) - parseFloat(startPoint.lng)) * fraction;
 
@@ -389,6 +452,9 @@ function togglePlay() {
             step = 0;
         }
     }
+    
+    // Reset currentSegmentDuration to ensure it's recalculated for the current segment
+    currentSegmentDuration = DURATION_PER_SEGMENT;
     
     isPlaying = true;
     document.getElementById('play').style.display = 'none';
