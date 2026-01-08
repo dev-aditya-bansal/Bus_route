@@ -11,15 +11,16 @@ const route = [
 
 // Global variables
 let map, busMarker, animationTimeout, liveLocationInterval;
-let isPlaying = false, index = 0, step = 0;
+let isPlaying = false, index = -1, step = 0; // Animation disabled - position based on live location only
 const STEPS_PER_SEGMENT = 60;
-const DURATION_PER_SEGMENT = 2500; // Fallback duration in ms
+const DURATION_PER_SEGMENT = 2500; // Fallback duration in ms (not used - no animation)
 const DELAY = DURATION_PER_SEGMENT / STEPS_PER_SEGMENT;
-let currentSegmentDuration = DURATION_PER_SEGMENT; // Current segment duration based on ETA
+let currentSegmentDuration = DURATION_PER_SEGMENT; // Not used - no animation
+let hasReceivedFirstLocation = false; // Track if we've received the first live location
 
 // API Configuration
 const API_BASE_URL = 'https://vsms-v2-public.mceasy.com/v1/vehicles';
-const VEHICLE_ID = 81596;
+const VEHICLE_ID = 88440;
 const API_TOKEN = 'b5fU8a2Dc2y7zbacF4fccrFDTKeG27f3h5faua8dkDealKmYSRb5I0go3a2XUu0taiabbhuqba6ajLFTac48aSgcbf4bgJHej4fea6MQG6qUzr67gO4IL6L385syZJOW6kXbf75mFaLGuPxfmSV86A1aZg0p4RkayHOt2fC3TRPA6AV6zxaV7Ffz6F4DYKi4kv6Id7tS7FZa4SjKeRH9fktkhVBTV6yWOanlbc4kLafFecbbc9x6yOae60eGp8l8';
 const FETCH_INTERVAL = 5000; // 5 seconds
 
@@ -32,6 +33,7 @@ const STOP_PROXIMITY_METERS = 500; // 500 meters - consider bus at stop if withi
 // Store current bus location and ETA data
 let currentBusLocation = null;
 let currentStopIndex = -1; // -1 means not determined yet
+let isBusAtStop = false; // Track if bus is currently at a stop
 let stopETAs = {}; // Store ETA in seconds for each stop index
 let isCalculatingETA = false; // Prevent multiple simultaneous ETA calculations
 
@@ -79,6 +81,11 @@ function updateIntegratedLineBusPosition() {
     const etaItems = etaList.querySelectorAll('.eta-item');
     if (etaItems.length === 0) return;
     
+    // Ensure we have the same number of stops as route items
+    if (etaItems.length !== route.length) {
+        // Mismatch detected but continue anyway
+    }
+    
     // Calculate positions of each stop (center of each item)
     const stopPositions = [];
     let currentTop = 0;
@@ -110,17 +117,51 @@ function updateIntegratedLineBusPosition() {
     routeLineTrack.style.height = '100%';
     
     // Calculate current bus position relative to the line
+    // Position is based ONLY on live location - no animation
     let busPositionOnLine = 0;
     
-    if (index < route.length - 1) {
-        // Bus is between stops
-        const segmentProgress = step / STEPS_PER_SEGMENT;
-        const currentStopY = stopPositions[index];
-        const nextStopY = stopPositions[index + 1];
-        busPositionOnLine = currentStopY + (nextStopY - currentStopY) * segmentProgress;
-    } else {
-        // Bus is at or past the last stop
-        busPositionOnLine = stopPositions[route.length - 1];
+    // FIRST PRIORITY: Use live location to calculate exact position on route
+    if (currentBusLocation && currentBusLocation.lat && currentBusLocation.lng) {
+        const animPos = calculateAnimationPositionFromLiveLocation(
+            currentBusLocation.lat,
+            currentBusLocation.lng
+        );
+        
+        if (animPos && animPos.index >= 0 && animPos.index < stopPositions.length) {
+            // Calculate position based on live location
+            const segmentProgress = Math.min(animPos.step / STEPS_PER_SEGMENT, 1);
+            const currentStopY = stopPositions[animPos.index];
+            
+            if (animPos.index < stopPositions.length - 1) {
+                const nextStopY = stopPositions[animPos.index + 1];
+                busPositionOnLine = currentStopY + (nextStopY - currentStopY) * segmentProgress;
+            } else {
+                // At last stop
+                busPositionOnLine = currentStopY;
+            }
+        } else if (currentStopIndex >= 0 && currentStopIndex < stopPositions.length) {
+            // Fallback: use currentStopIndex if we can't calculate from live location
+            busPositionOnLine = stopPositions[currentStopIndex];
+        }
+    }
+    // SECOND PRIORITY: Use currentStopIndex if available
+    else if (currentStopIndex >= 0 && currentStopIndex < stopPositions.length && currentStopIndex < route.length) {
+        busPositionOnLine = stopPositions[currentStopIndex];
+    }
+    // THIRD PRIORITY: Use index/step (from last known position)
+    else if (index >= 0 && index < route.length && index < stopPositions.length) {
+        if (index < route.length - 1) {
+            const segmentProgress = Math.min(step / STEPS_PER_SEGMENT, 1);
+            const currentStopY = stopPositions[index];
+            const nextStopY = stopPositions[index + 1];
+            busPositionOnLine = currentStopY + (nextStopY - currentStopY) * segmentProgress;
+        } else {
+            busPositionOnLine = stopPositions[route.length - 1];
+        }
+    }
+    // LAST RESORT: Default to first stop
+    else {
+        busPositionOnLine = stopPositions[0] || 0;
     }
     
     // Convert bus position to position relative to line start
@@ -168,16 +209,14 @@ function updateIntegratedLineBusPosition() {
         transitionDuration = delay / 1000;
     }
     
-    // Update bus icon position with ETA-based transition duration
-    // bus-icon-integrated is now a direct child of eta-list, so its top is relative to eta-list
-    busIcon.style.transition = `top ${transitionDuration}s linear`;
+    // Update bus icon position - NO animation, instant update based on live location
+    busIcon.style.transition = 'none';
     busIcon.style.top = busPositionOnLine + 'px';
     busIcon.style.bottom = 'auto';
     busIcon.style.transform = 'translateX(-50%) translateY(-50%)';
     
-    // Update covered line height with ETA-based transition duration
-    // The red line is inside route-line-integrated, so it uses busPositionFromLineStart
-    routeLineCovered.style.transition = `height ${transitionDuration}s linear`;
+    // Update covered line height - NO animation, instant update based on live location
+    routeLineCovered.style.transition = 'none';
     routeLineCovered.style.top = '0';
     routeLineCovered.style.bottom = 'auto';
     routeLineCovered.style.height = Math.max(0, busPositionFromLineStart) + 'px';
@@ -237,7 +276,7 @@ function initMap() {
     updateETAList();
     updateStatus('✅ Ready - Fetching live location...');
     
-    // Start fetching live bus location
+    // Start fetching live bus location (animation will start automatically when location is received)
     startLiveLocationTracking();
 }
 
@@ -325,160 +364,17 @@ function updateETAList() {
     }, 10);
 }
 
+// Animation disabled - bus position is updated directly from live location
 function animateBus() {
-    if (!isPlaying) {
-        return;
-    }
-    
-    // Check if we've reached the end of the route
-    if (index >= route.length - 1) {
-        // Route complete - stop animation, don't restart
-        isPlaying = false;
-        document.getElementById('play').style.display = 'inline-block';
-        document.getElementById('pause').style.display = 'none';
-        updateStatus('Route complete!');
-        updateETAList();
-        return;
-    }
-
-    const startPoint = route[index];
-    const endPoint = route[index + 1];
-    
-    // Calculate segment duration based on ETA for the next stop
-    const nextStopIndex = index + 1;
-    let fullSegmentDuration = DURATION_PER_SEGMENT; // Default fallback
-    
-    if (stopETAs[nextStopIndex] !== undefined && stopETAs[nextStopIndex] > 0) {
-        // ETA is in seconds, convert to milliseconds
-        // This ETA is from current live location to next stop
-        // If we're partway through the segment, we need to adjust
-        fullSegmentDuration = stopETAs[nextStopIndex] * 1000;
-        // Ensure minimum duration to avoid too fast animation
-        fullSegmentDuration = Math.max(fullSegmentDuration, 1000); // At least 1 second
-        console.log(`Using ETA for stop ${nextStopIndex + 1}: ${Math.round(stopETAs[nextStopIndex])}s (${Math.round(fullSegmentDuration/1000)}s animation)`);
-    } else {
-        // If no ETA available, calculate distance-based estimate
-        const startLat = parseFloat(startPoint.lat);
-        const startLng = parseFloat(startPoint.lng);
-        const endLat = parseFloat(endPoint.lat);
-        const endLng = parseFloat(endPoint.lng);
-        const distance = calculateDistance(startLat, startLng, endLat, endLng);
-        // Estimate: assume average speed of 40 km/h (11.11 m/s) for urban routes
-        const estimatedSeconds = distance / 11.11;
-        fullSegmentDuration = estimatedSeconds * 1000;
-        fullSegmentDuration = Math.max(fullSegmentDuration, 1000); // At least 1 second
-        // Also set a reasonable maximum to avoid very long animations
-        fullSegmentDuration = Math.min(fullSegmentDuration, 60000); // Max 60 seconds per segment
-        console.log(`No ETA available for stop ${nextStopIndex + 1}, using distance estimate: ${Math.round(fullSegmentDuration/1000)}s`);
-    }
-    
-    // Calculate remaining duration for current segment
-    // If step > 0, we're partway through the segment, so calculate remaining time
-    let remainingDuration = fullSegmentDuration;
-    if (step > 0) {
-        // Calculate how much of the segment is remaining
-        const progress = step / STEPS_PER_SEGMENT;
-        remainingDuration = fullSegmentDuration * (1 - progress);
-        // Ensure minimum remaining duration
-        remainingDuration = Math.max(remainingDuration, 100); // At least 100ms
-    }
-    
-    // Update current segment duration (only at start of segment)
-    if (step === 0) {
-        currentSegmentDuration = fullSegmentDuration;
-    }
-    
-    // Calculate delay based on remaining duration for current step
-    // If we're partway through, use remaining duration; otherwise use full segment duration
-    const stepsRemaining = STEPS_PER_SEGMENT - step;
-    const delay = stepsRemaining > 0 ? remainingDuration / stepsRemaining : remainingDuration;
-    
-    step++;
-    const fraction = Math.min(step / STEPS_PER_SEGMENT, 1);
-
-    const lat = parseFloat(startPoint.lat) + (parseFloat(endPoint.lat) - parseFloat(startPoint.lat)) * fraction;
-    const lng = parseFloat(startPoint.lng) + (parseFloat(endPoint.lng) - parseFloat(startPoint.lng)) * fraction;
-
-    busMarker.setLatLng([lat, lng]);
-    map.panTo([lat, lng]);
-    
-    // Update integrated digital view
-    updateIntegratedLineBusPosition();
-
-    if (fraction >= 1) {
-        step = 0;
-        index++;
-        updateETAList(); // Update ETA after each segment
-        if (index < route.length) {
-            updateStatus(`Stop ${route[index].sequence}/${route.length}`);
-        }
-        if (isPlaying) {
-            // Brief pause at stop before continuing
-            animationTimeout = setTimeout(animateBus, 800);
-        }
-    } else {
-        animationTimeout = setTimeout(animateBus, delay);
-    }
+    // Animation is disabled - position updates come from live location only
+    return;
 }
 
-function togglePlay() {
-    if (isPlaying) return;
-    
-    // If we have a live location, start animation from that position
-    if (currentBusLocation && currentBusLocation.lat && currentBusLocation.lng) {
-        const animPos = calculateAnimationPositionFromLiveLocation(
-            currentBusLocation.lat, 
-            currentBusLocation.lng
-        );
-        
-        if (animPos) {
-            index = animPos.index;
-            step = animPos.step;
-            // Update bus marker to match calculated position
-            const startPoint = route[index];
-            const endPoint = route[index + 1];
-            const fraction = Math.min(step / STEPS_PER_SEGMENT, 1);
-            const lat = parseFloat(startPoint.lat) + (parseFloat(endPoint.lat) - parseFloat(startPoint.lat)) * fraction;
-            const lng = parseFloat(startPoint.lng) + (parseFloat(endPoint.lng) - parseFloat(startPoint.lng)) * fraction;
-            busMarker.setLatLng([lat, lng]);
-        } else if (currentStopIndex >= 0) {
-            // Fallback: use current stop index
-            index = currentStopIndex;
-            step = 0;
-        }
-    }
-    
-    // Reset currentSegmentDuration to ensure it's recalculated for the current segment
-    currentSegmentDuration = DURATION_PER_SEGMENT;
-    
-    isPlaying = true;
-    document.getElementById('play').style.display = 'none';
-    document.getElementById('pause').style.display = 'inline-block';
-    updateStatus('Bus moving...');
-    updateETAList();
-    // Update integrated digital view
-    updateIntegratedLineBusPosition();
-    animateBus();
-}
-
-function togglePause() {
-    isPlaying = false;
-    if (animationTimeout) clearTimeout(animationTimeout);
-    document.getElementById('play').style.display = 'inline-block';
-    document.getElementById('pause').style.display = 'none';
-    updateStatus('Paused - Live tracking continues');
-}
-
-function resetBus() {
-    togglePause();
-    index = 0; 
-    step = 0;
-    // Don't reset to route start - keep live location
-    // Just reset animation state
-    updateETAList();
-    updateStatus('Reset - Live tracking continues');
-    // Update integrated digital view
-    updateIntegratedLineBusPosition();
+// Animation disabled - position updates come from live location only
+function startAnimationFromLiveLocation() {
+    // Animation is disabled - position updates come from live location only
+    // This function is kept for compatibility but does nothing
+    return;
 }
 
 function updateStatus(msg) {
@@ -619,8 +515,6 @@ async function fetchETAFromCurrentLocation(busLat, busLng, targetStopIndex) {
         
         const url = `${DISTANCE_MATRIX_BASE_URL}?origins=${busLat},${busLng}&destinations=${destLat},${destLng}&key=${DISTANCE_MATRIX_API_KEY}`;
         
-        console.log(`Fetching ETA from (${busLat}, ${busLng}) to stop ${targetStopIndex + 1} (${targetStop.stop_name})`);
-        
         const response = await fetch(url);
         
         if (!response.ok) {
@@ -641,24 +535,19 @@ async function fetchETAFromCurrentLocation(busLat, busLng, targetStopIndex) {
                     // We're at the start of the segment, update duration
                     currentSegmentDuration = durationSeconds * 1000;
                     currentSegmentDuration = Math.max(currentSegmentDuration, 1000);
-                    console.log(`🔄 Updated animation speed for current segment: ${Math.round(durationSeconds)} seconds`);
                 }
                 
                 // Update ETA list with new data
                 updateETAList();
                 
-                console.log(`✅ ETA to stop ${targetStopIndex + 1} (${targetStop.sequence}): ${durationSeconds} seconds (${Math.round(durationSeconds / 60)} minutes)`);
                 return durationSeconds;
             } else {
-                console.warn(`⚠️ Distance Matrix API returned status: ${element.status} for stop ${targetStopIndex + 1}`);
                 throw new Error(`Distance Matrix API returned status: ${element.status}`);
             }
         } else {
-            console.warn(`⚠️ Invalid Distance Matrix API response format for stop ${targetStopIndex + 1}`);
             throw new Error('Invalid Distance Matrix API response format');
         }
     } catch (error) {
-        console.error(`❌ Error fetching ETA for stop ${targetStopIndex + 1}:`, error);
         return null;
     } finally {
         window[calculationKey] = false;
@@ -690,25 +579,18 @@ async function fetchLiveLocation() {
                 // Store current bus location
                 currentBusLocation = { lat, lng };
                 
-                // Update bus marker position
-                busMarker.setLatLng([lat, lng]);
-                map.panTo([lat, lng], { animate: true, duration: 0.5 });
-                
-                // Update integrated line view
-                const animPos = calculateAnimationPositionFromLiveLocation(lat, lng);
-                if (animPos) {
-                    index = animPos.index;
-                    step = animPos.step;
-                    updateIntegratedLineBusPosition();
+                // Mark that we've received the first location
+                if (!hasReceivedFirstLocation) {
+                    hasReceivedFirstLocation = true;
                 }
                 
-                // Determine current stop
+                // Determine current stop FIRST (before calculating animation position)
                 const detectedStopIndex = determineCurrentStop(lat, lng);
                 const nearestStop = route[detectedStopIndex];
                 const nearestStopLat = parseFloat(nearestStop.lat);
                 const nearestStopLng = parseFloat(nearestStop.lng);
                 const distanceToNearest = calculateDistance(lat, lng, nearestStopLat, nearestStopLng);
-                const isAtStop = distanceToNearest <= STOP_PROXIMITY_METERS;
+                isBusAtStop = distanceToNearest <= STOP_PROXIMITY_METERS;
                 
                 // Check if we've reached a new stop
                 const stopChanged = detectedStopIndex !== currentStopIndex;
@@ -719,6 +601,40 @@ async function fetchLiveLocation() {
                         delete stopETAs[i];
                     }
                 }
+                
+                // IMPORTANT: Always sync index with currentStopIndex when bus is at stop
+                // This ensures position calculation uses the correct stop
+                if (isBusAtStop && currentStopIndex >= 0) {
+                    index = currentStopIndex;
+                    step = 0;
+                }
+                
+                // Update bus position directly from live location (no animation)
+                // If bus is at a stop, position it exactly at that stop
+                if (isBusAtStop && currentStopIndex >= 0) {
+                    index = currentStopIndex;
+                    step = 0;
+                    // Position bus marker at the stop location
+                    busMarker.setLatLng([parseFloat(nearestStop.lat), parseFloat(nearestStop.lng)]);
+                } else {
+                    // Bus is moving - calculate position on route based on live location
+                    const animPos = calculateAnimationPositionFromLiveLocation(lat, lng);
+                    if (animPos) {
+                        index = animPos.index;
+                        step = animPos.step;
+                    } else if (currentStopIndex >= 0) {
+                        // Fallback: use current stop index
+                        index = currentStopIndex;
+                        step = 0;
+                    }
+                    // Update bus marker position directly from live location
+                    busMarker.setLatLng([lat, lng]);
+                }
+                
+                map.panTo([lat, lng], { animate: true, duration: 0.5 });
+                
+                // Update digital view position based on live location
+                updateIntegratedLineBusPosition();
                 
                 // Calculate ETAs for future stops from current location
                 // Calculate for next 3 stops to provide good ETA coverage
@@ -735,7 +651,7 @@ async function fetchLiveLocation() {
                         if (shouldFetch) {
                             // Fetch ETA in background (don't await to avoid blocking)
                             fetchETAFromCurrentLocation(lat, lng, targetStopIndex).catch(err => {
-                                console.error(`Error fetching ETA for stop ${targetStopIndex + 1}:`, err);
+                                // Error fetching ETA - silently continue
                             });
                             
                             // Add small delay between API calls to avoid rate limiting
@@ -762,7 +678,6 @@ async function fetchLiveLocation() {
             throw new Error('Invalid API response format');
         }
     } catch (error) {
-        console.error('Error fetching live location:', error);
         updateStatus(`⚠️ Error: ${error.message}`);
         return null;
     }
@@ -785,6 +700,60 @@ function stopLiveLocationTracking() {
     if (liveLocationInterval) {
         clearInterval(liveLocationInterval);
         liveLocationInterval = null;
+    }
+}
+
+// Refresh location and ETA manually
+async function refreshLocation() {
+    const refreshBtn = document.getElementById('refresh');
+    if (refreshBtn) {
+        refreshBtn.disabled = true;
+        refreshBtn.textContent = '⏳ Refreshing...';
+    }
+    updateStatus('🔄 Refreshing location and ETA...');
+    
+    try {
+        // Fetch location immediately
+        const result = await fetchLiveLocation();
+        
+        if (result && result.lat && result.lng && currentStopIndex >= 0) {
+            // Clear existing ETAs for future stops to force refresh
+            for (let i = currentStopIndex + 1; i < route.length; i++) {
+                delete stopETAs[i];
+            }
+            
+            // Force refresh ETAs for next stops
+            const maxStopsToCalculate = Math.min(3, route.length - currentStopIndex - 1);
+            
+            // Fetch fresh ETAs for next stops
+            for (let i = 0; i < maxStopsToCalculate; i++) {
+                const targetStopIndex = currentStopIndex + 1 + i;
+                if (targetStopIndex < route.length) {
+                    // Always fetch fresh ETA on manual refresh
+                    await fetchETAFromCurrentLocation(result.lat, result.lng, targetStopIndex).catch(err => {
+                        // Error fetching ETA - silently continue
+                    });
+                    
+                    // Add small delay between API calls to avoid rate limiting
+                    if (i < maxStopsToCalculate - 1) {
+                        await new Promise(resolve => setTimeout(resolve, 300));
+                    }
+                }
+            }
+            
+            // Update ETA list with refreshed data
+            updateETAList();
+        }
+        
+        if (refreshBtn) {
+            refreshBtn.disabled = false;
+            refreshBtn.textContent = '🔄 Refresh';
+        }
+    } catch (error) {
+        if (refreshBtn) {
+            refreshBtn.disabled = false;
+            refreshBtn.textContent = '🔄 Refresh';
+        }
     }
 }
 
