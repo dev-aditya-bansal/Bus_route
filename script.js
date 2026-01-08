@@ -38,39 +38,34 @@ let isCalculatingETA = false; // Prevent multiple simultaneous ETA calculations
 // View toggle variables
 let currentView = 'map'; // 'map' or 'line'
 
-// Toggle between map and line view (now just toggles map visibility)
+// Toggle between map and digital view (now just toggles map visibility)
 function toggleView() {
     const mapView = document.getElementById('map');
-    const etaPanel = document.querySelector('.eta-panel');
     const container = document.querySelector('.container');
-    const toggleIcon = document.getElementById('viewToggleIcon');
-    const toggleText = document.getElementById('viewToggleText');
+    const toggleCheckbox = document.getElementById('viewToggle');
     
-    if (currentView === 'map') {
-        // Hide map view - show line view in ETA panel
+    // Toggle is checked = Digital View, unchecked = Map View
+    if (toggleCheckbox.checked) {
+        // Show digital view - hide map view
         mapView.style.display = 'none';
         if (container) container.classList.remove('map-view-active');
         currentView = 'line';
-        toggleIcon.textContent = '🗺️';
-        toggleText.textContent = 'Map View';
     } else {
-        // Show map view - hide line view in ETA panel
+        // Show map view - hide digital view in ETA panel
         mapView.style.display = 'block';
         if (container) container.classList.add('map-view-active');
         currentView = 'map';
-        toggleIcon.textContent = '📋';
-        toggleText.textContent = 'Line View';
     }
     
-    // Update bus position after view change (only if line view is active)
+    // Update bus position after view change (only if digital view is active)
     if (currentView === 'line') {
         updateIntegratedLineBusPosition();
     }
 }
 
-// Update bus position in integrated line view based on current animation state
+// Update bus position in integrated digital view based on current animation state
 function updateIntegratedLineBusPosition() {
-    // Only update if line view is active
+    // Only update if digital view is active
     if (currentView !== 'line') return;
     
     const busIcon = document.querySelector('.bus-icon-integrated');
@@ -407,7 +402,7 @@ function animateBus() {
     busMarker.setLatLng([lat, lng]);
     map.panTo([lat, lng]);
     
-    // Update integrated line view
+    // Update integrated digital view
     updateIntegratedLineBusPosition();
 
     if (fraction >= 1) {
@@ -461,7 +456,7 @@ function togglePlay() {
     document.getElementById('pause').style.display = 'inline-block';
     updateStatus('Bus moving...');
     updateETAList();
-    // Update integrated line view
+    // Update integrated digital view
     updateIntegratedLineBusPosition();
     animateBus();
 }
@@ -482,7 +477,7 @@ function resetBus() {
     // Just reset animation state
     updateETAList();
     updateStatus('Reset - Live tracking continues');
-    // Update integrated line view
+    // Update integrated digital view
     updateIntegratedLineBusPosition();
 }
 
