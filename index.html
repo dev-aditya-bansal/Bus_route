@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🚌 Bus Tracker - ETA FIXED</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🚌 Bus Tracker</h1>
+        <p>Live ETA ✅</p>
+    </div>
+    
+    <div class="controls">
+        <button id="play" onclick="togglePlay()">▶ Play</button>
+        <button id="pause" onclick="togglePause()">⏸ Pause</button>
+        <button id="reset" onclick="resetBus()">🔄 Reset</button>
+    </div>
+    <div id="status">Ready</div>
+    
+    <div id="map"></div>
+    
+    <div class="eta-panel">
+        <div class="eta-header">📍 Bus Stop</div>
+        <div id="eta-list" class="eta-list"></div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

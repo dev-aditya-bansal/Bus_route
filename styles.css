@@ -1,0 +1,93 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f8f9fa;
+    padding: 12px 8px;
+    line-height: 1.4;
+}
+.container { max-width: 500px; margin: 0 auto; }
+
+.header {
+    text-align: center; padding: 20px 0 16px;
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white; border-radius: 16px; margin-bottom: 16px;
+}
+.header h1 { font-size: clamp(1.4rem, 8vw, 1.8rem); font-weight: 700; }
+.header p { font-size: 0.9rem; opacity: 0.9; margin-top: 4px; }
+
+.controls {
+    background: white; padding: 16px; border-radius: 16px;
+    display: flex; gap: 8px; margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+button {
+    flex: 1; padding: 14px 12px; font-size: 16px; font-weight: 600;
+    border: none; border-radius: 12px; cursor: pointer;
+    min-height: 48px; transition: all 0.2s;
+}
+#play { background: #4CAF50; color: white; }
+#pause { background: #f44336; color: white; display: none; }
+#reset { background: #2196F3; color: white; }
+button:active { transform: scale(0.98); }
+
+#status {
+    text-align: center; padding: 8px 12px; 
+    font-size: 14px; font-weight: 500; color: #666;
+    background: #e8f5e8; border-radius: 8px; margin-bottom: 16px;
+}
+
+#map {
+    height: 280px; width: 100%;
+    border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    margin-bottom: 16px; overflow: hidden;
+}
+
+.eta-panel {
+    background: white; border-radius: 16px; padding: 20px 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+.eta-header {
+    text-align: center; margin-bottom: 20px; 
+    color: #333; font-size: 1.1rem; font-weight: 700;
+    padding-bottom: 12px; border-bottom: 2px solid #e0e0e0;
+}
+.eta-list { display: flex; flex-direction: column; gap: 12px; }
+.eta-item {
+    padding: 16px 12px; border-radius: 12px;
+    background: #f8f9fa; border-left: 4px solid #4CAF50;
+    transition: all 0.2s;
+}
+.eta-item.current { 
+    background: #fff3cd; border-left-color: #f57c00;
+    box-shadow: 0 4px 12px rgba(245,124,0,0.2);
+}
+.eta-item.next { border-left-color: #2196F3; }
+.stop-info { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.stop-number {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #4CAF50; color: white; font-weight: 700;
+    font-size: 14px; display: flex; align-items: center; justify-content: center;
+}
+.eta-item.current .stop-number { background: #f57c00; }
+.eta-item.next .stop-number { background: #2196F3; }
+.stop-name { font-weight: 600; font-size: 15px; color: #333; flex: 1; }
+.eta-time { font-size: 20px; font-weight: 700; color: #2E7D32; margin-bottom: 2px; }
+.eta-progress { font-size: 13px; color: #666; }
+
+.bus-icon { 
+    background: transparent; font-size: 28px; 
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.7); 
+}
+.stop-icon { 
+    background: #4CAF50; color: white; border-radius: 50%; 
+    font-weight: bold; font-size: 14px; 
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    line-height: 1;
+    text-align: center;
+}
+
+@media (min-width: 768px) {
+    .container { max-width: 800px; }
+    #map { height: 400px; }
+}
