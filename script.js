@@ -18,9 +18,17 @@ const DELAY = DURATION_PER_SEGMENT / STEPS_PER_SEGMENT;
 let currentSegmentDuration = DURATION_PER_SEGMENT; // Not used - no animation
 let hasReceivedFirstLocation = false; // Track if we've received the first live location
 
+// Bus data - list of available buses
+const buses = [
+    { id: 88440, name: 'A 7696 S - D02' },
+    { id: 92066, name: 'B 7012 XXA - D05' },
+    { id: 83089, name: 'A 9174 RN - D01' },
+    { id: 81596, name: 'A 1513 SC - S07' },
+];
+
 // API Configuration
 const API_BASE_URL = 'https://vsms-v2-public.mceasy.com/v1/vehicles';
-const VEHICLE_ID = 88440;
+let VEHICLE_ID = 88440; // Default bus, will be updated when bus is selected
 const API_TOKEN = 'b5fU8a2Dc2y7zbacF4fccrFDTKeG27f3h5faua8dkDealKmYSRb5I0go3a2XUu0taiabbhuqba6ajLFTac48aSgcbf4bgJHej4fea6MQG6qUzr67gO4IL6L385syZJOW6kXbf75mFaLGuPxfmSV86A1aZg0p4RkayHOt2fC3TRPA6AV6zxaV7Ffz6F4DYKi4kv6Id7tS7FZa4SjKeRH9fktkhVBTV6yWOanlbc4kLafFecbbc9x6yOae60eGp8l8';
 const FETCH_INTERVAL = 5000; // 5 seconds
 
@@ -222,6 +230,121 @@ function updateIntegratedLineBusPosition() {
     routeLineCovered.style.height = Math.max(0, busPositionFromLineStart) + 'px';
 }
 
+// Toggle bus dropdown
+function toggleBusDropdown() {
+    const dropdown = document.getElementById('busDropdown');
+    const options = document.getElementById('busSelectOptions');
+    const selected = document.getElementById('busSelectDisplay');
+    
+    if (!dropdown || !options || !selected) return;
+    
+    const isOpen = options.classList.contains('show');
+    
+    if (isOpen) {
+        options.classList.remove('show');
+        selected.classList.remove('active');
+    } else {
+        // Close other dropdowns if any
+        document.querySelectorAll('.dropdown-options.show').forEach(opt => {
+            opt.classList.remove('show');
+        });
+        document.querySelectorAll('.dropdown-selected.active').forEach(sel => {
+            sel.classList.remove('active');
+        });
+        
+        options.classList.add('show');
+        selected.classList.add('active');
+    }
+}
+
+// Populate bus dropdown
+function populateBusDropdown() {
+    const optionsContainer = document.getElementById('busSelectOptions');
+    const displayText = document.getElementById('busSelectText');
+    if (!optionsContainer || !displayText) return;
+    
+    // Clear existing options
+    optionsContainer.innerHTML = '';
+    
+    // Add buses to dropdown
+    buses.forEach(bus => {
+        const option = document.createElement('div');
+        option.className = 'dropdown-option';
+        if (bus.id === VEHICLE_ID) {
+            option.classList.add('selected');
+        }
+        option.textContent = bus.name;
+        option.dataset.busId = bus.id;
+        option.onclick = () => selectBus(bus.id);
+        optionsContainer.appendChild(option);
+    });
+    
+    // Set default display text
+    const selectedBus = buses.find(bus => bus.id === VEHICLE_ID);
+    if (selectedBus) {
+        displayText.textContent = selectedBus.name;
+    }
+}
+
+// Handle bus selection
+function selectBus(busId) {
+    const selectedBusId = parseInt(busId);
+    if (selectedBusId === VEHICLE_ID) {
+        // Just close dropdown if same bus selected
+        toggleBusDropdown();
+        return;
+    }
+    
+    // Update vehicle ID
+    VEHICLE_ID = selectedBusId;
+    
+    // Update display text
+    const displayText = document.getElementById('busSelectText');
+    const selectedBus = buses.find(bus => bus.id === VEHICLE_ID);
+    if (displayText && selectedBus) {
+        displayText.textContent = selectedBus.name;
+    }
+    
+    // Update selected option styling
+    const options = document.querySelectorAll('.dropdown-option');
+    options.forEach(opt => {
+        if (parseInt(opt.dataset.busId) === VEHICLE_ID) {
+            opt.classList.add('selected');
+        } else {
+            opt.classList.remove('selected');
+        }
+    });
+    
+    // Close dropdown
+    toggleBusDropdown();
+    
+    // Reset state
+    currentBusLocation = null;
+    currentStopIndex = -1;
+    isBusAtStop = false;
+    stopETAs = {};
+    index = -1;
+    step = 0;
+    hasReceivedFirstLocation = false;
+    
+    // Stop current tracking
+    stopLiveLocationTracking();
+    
+    // Reset bus marker position
+    if (busMarker && route.length > 0) {
+        const start = [parseFloat(route[0].lat), parseFloat(route[0].lng)];
+        busMarker.setLatLng(start);
+        map.panTo(start, { animate: true, duration: 0.5 });
+    }
+    
+    // Update ETA list
+    updateETAList();
+    updateStatus(`🔄 Switched to Bus ${VEHICLE_ID} - Fetching location...`);
+    
+    // Start tracking new bus
+    startLiveLocationTracking();
+}
+
 // Initialize map
 function initMap() {
     // Set initial view state - map view is active by default
@@ -272,6 +395,22 @@ function initMap() {
         `);
     });
 
+    // Populate bus dropdown
+    populateBusDropdown();
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        const dropdown = document.getElementById('busDropdown');
+        if (dropdown && !dropdown.contains(e.target)) {
+            const options = document.getElementById('busSelectOptions');
+            const selected = document.getElementById('busSelectDisplay');
+            if (options && options.classList.contains('show')) {
+                options.classList.remove('show');
+                if (selected) selected.classList.remove('active');
+            }
+        }
+    });
+    
     // Initialize ETA list IMMEDIATELY
     updateETAList();
     updateStatus('✅ Ready - Fetching live location...');

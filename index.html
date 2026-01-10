@@ -24,6 +24,13 @@
             </label>
             <span class="toggle-label">Digital View</span>
         </div>
+        <div class="custom-dropdown" id="busDropdown">
+            <div class="dropdown-selected" id="busSelectDisplay" onclick="toggleBusDropdown()">
+                <span id="busSelectText">Bus 88440</span>
+                <span class="dropdown-arrow">▼</span>
+            </div>
+            <div class="dropdown-options" id="busSelectOptions"></div>
+        </div>
         <button id="refresh" onclick="refreshLocation()" title="Refresh Location">🔄 Refresh</button>
     </div>
     <div id="status">Ready</div>

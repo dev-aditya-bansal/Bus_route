@@ -21,6 +21,123 @@ body {
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     flex-wrap: wrap;
 }
+.custom-dropdown {
+    flex: 1;
+    position: relative;
+    min-width: 150px;
+}
+
+.dropdown-selected {
+    padding: 14px 12px;
+    font-size: 16px;
+    font-weight: 600;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    cursor: pointer;
+    min-height: 48px;
+    transition: all 0.2s;
+    background: white;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    user-select: none;
+}
+
+.dropdown-selected:hover {
+    border-color: #4CAF50;
+    box-shadow: 0 2px 6px rgba(76, 175, 80, 0.15);
+}
+
+.dropdown-selected.active {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15), 0 2px 6px rgba(76, 175, 80, 0.2);
+}
+
+.dropdown-arrow {
+    font-size: 12px;
+    color: #4CAF50;
+    transition: transform 0.2s;
+    margin-left: 8px;
+}
+
+.dropdown-selected.active .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.dropdown-options {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    margin-top: 4px;
+}
+
+.dropdown-options.show {
+    max-height: 300px;
+    opacity: 1;
+    overflow-y: auto;
+}
+
+/* Custom scrollbar for dropdown */
+.dropdown-options::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dropdown-options::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.dropdown-options::-webkit-scrollbar-thumb {
+    background: #4CAF50;
+    border-radius: 10px;
+}
+
+.dropdown-options::-webkit-scrollbar-thumb:hover {
+    background: #45a049;
+}
+
+.dropdown-option {
+    padding: 14px 16px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+}
+
+.dropdown-option:last-child {
+    border-bottom: none;
+}
+
+.dropdown-option:hover {
+    background: #f0f7f0;
+    color: #4CAF50;
+}
+
+.dropdown-option.selected {
+    background: #4CAF50;
+    color: white;
+    font-weight: 600;
+}
+
+.dropdown-option.selected:hover {
+    background: #45a049;
+}
 button {
     flex: 1; padding: 14px 12px; font-size: 16px; font-weight: 600;
     border: none; border-radius: 12px; cursor: pointer;
