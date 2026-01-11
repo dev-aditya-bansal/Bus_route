@@ -49,6 +49,7 @@ body {
     position: relative;
     min-width: 150px;
     min-width: 0; /* Allow flexbox to shrink on mobile */
+    z-index: 3000;
 }
 
 .dropdown-selected {
@@ -100,7 +101,7 @@ body {
     border: 2px solid #e0e0e0;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 1000;
+    z-index: 3000;
     max-height: 0;
     overflow: hidden;
     opacity: 0;
