@@ -219,7 +219,6 @@ button {
 #play { background: #4CAF50; color: white; }
 #pause { background: #f44336; color: white; display: none; }
 #reset { background: #2196F3; color: white; }
-#refresh { background: #FF9800; color: white; }
 button:active { transform: scale(0.98); }
 button:disabled { opacity: 0.6; cursor: not-allowed; }
 

@@ -444,11 +444,9 @@ function updateETAList() {
         if (hasPassed) {
             // Past stops
             etaDisplay = '✅ Arrived';
-            progressText = '✅ Done';
         } else if (isCurrentStop) {
             // Current stop
             etaDisplay = '📍 At Stop';
-            progressText = '📍 Now';
         } else if (hasETA && currentBusLocation) {
             // Any future stop with real ETA from Distance Matrix API
             const etaSeconds = stopETAs[i];
@@ -779,13 +777,12 @@ async function fetchLiveLocation() {
                 // Calculate for next 3 stops to provide good ETA coverage
                 const maxStopsToCalculate = Math.min(3, route.length - detectedStopIndex - 1);
                 
+                // Auto-refresh ETAs every 5 seconds for next stops
                 for (let i = 0; i < maxStopsToCalculate; i++) {
                     const targetStopIndex = detectedStopIndex + 1 + i;
                     if (targetStopIndex < route.length) {
-                        // For the next stop, always try to get fresh ETA
-                        // For other stops, only if we don't have one
-                        const shouldFetch = (i === 0 && (!stopETAs[targetStopIndex] || stopChanged)) || 
-                                          (i > 0 && !stopETAs[targetStopIndex]);
+                        // Always refresh ETA for next stop, refresh others if they don't exist or stop changed
+                        const shouldFetch = (i === 0) || (i > 0 && (!stopETAs[targetStopIndex] || stopChanged));
                         
                         if (shouldFetch) {
                             // Fetch ETA in background (don't await to avoid blocking)
@@ -842,59 +839,6 @@ function stopLiveLocationTracking() {
     }
 }
 
-// Refresh location and ETA manually
-async function refreshLocation() {
-    const refreshBtn = document.getElementById('refresh');
-    if (refreshBtn) {
-        refreshBtn.disabled = true;
-        refreshBtn.textContent = '⏳ Refreshing...';
-    }
-    updateStatus('🔄 Refreshing location and ETA...');
-    
-    try {
-        // Fetch location immediately
-        const result = await fetchLiveLocation();
-        
-        if (result && result.lat && result.lng && currentStopIndex >= 0) {
-            // Clear existing ETAs for future stops to force refresh
-            for (let i = currentStopIndex + 1; i < route.length; i++) {
-                delete stopETAs[i];
-            }
-            
-            // Force refresh ETAs for next stops
-            const maxStopsToCalculate = Math.min(3, route.length - currentStopIndex - 1);
-            
-            // Fetch fresh ETAs for next stops
-            for (let i = 0; i < maxStopsToCalculate; i++) {
-                const targetStopIndex = currentStopIndex + 1 + i;
-                if (targetStopIndex < route.length) {
-                    // Always fetch fresh ETA on manual refresh
-                    await fetchETAFromCurrentLocation(result.lat, result.lng, targetStopIndex).catch(err => {
-                        // Error fetching ETA - silently continue
-                    });
-                    
-                    // Add small delay between API calls to avoid rate limiting
-                    if (i < maxStopsToCalculate - 1) {
-                        await new Promise(resolve => setTimeout(resolve, 300));
-                    }
-                }
-            }
-            
-            // Update ETA list with refreshed data
-            updateETAList();
-        }
-        
-        if (refreshBtn) {
-            refreshBtn.disabled = false;
-            refreshBtn.textContent = '🔄 Refresh';
-        }
-    } catch (error) {
-        if (refreshBtn) {
-            refreshBtn.disabled = false;
-            refreshBtn.textContent = '🔄 Refresh';
-        }
-    }
-}
 
 // Initialize when DOM ready
 if (document.readyState === 'loading') {
