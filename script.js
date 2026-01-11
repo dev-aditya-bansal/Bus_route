@@ -104,25 +104,32 @@ function updateIntegratedLineBusPosition() {
         stopPositions.push(centerY);
         currentTop += height;
         if (i < etaItems.length - 1) {
-            currentTop += 12; // gap between items
+            // Get margin-bottom from computed style or use default
+            const marginBottom = parseInt(window.getComputedStyle(item).marginBottom) || 8;
+            currentTop += marginBottom;
         }
     });
     
-    // First stop position (start of line)
+    // First stop position (start of line) - center of first marker
     const firstStopY = stopPositions[0];
-    // Last stop position (end of line)
+    // Last stop position (end of line) - center of last marker
     const lastStopY = stopPositions[stopPositions.length - 1];
-    // Line height
-    const lineHeight = lastStopY - firstStopY;
+    // Line height - exactly from first stop center to last stop center (no extension beyond)
+    const lineHeight = Math.max(0, lastStopY - firstStopY);
     
-    // Update route line position and height
+    // Update route line position and height - stop exactly at last stop center
     routeLineIntegrated.style.top = firstStopY + 'px';
     routeLineIntegrated.style.bottom = 'auto';
     routeLineIntegrated.style.height = lineHeight + 'px';
+    routeLineIntegrated.style.maxHeight = lineHeight + 'px';
+    routeLineIntegrated.style.overflow = 'hidden'; // Prevent any overflow
+    routeLineIntegrated.style.boxSizing = 'border-box'; // Ensure padding doesn't add to height
     
     routeLineTrack.style.top = '0';
     routeLineTrack.style.bottom = 'auto';
-    routeLineTrack.style.height = '100%';
+    routeLineTrack.style.height = lineHeight + 'px';
+    routeLineTrack.style.maxHeight = lineHeight + 'px';
+    routeLineTrack.style.overflow = 'hidden';
     
     // Calculate current bus position relative to the line
     // Position is based ONLY on live location - no animation
@@ -224,10 +231,15 @@ function updateIntegratedLineBusPosition() {
     busIcon.style.transform = 'translateX(-50%) translateY(-50%)';
     
     // Update covered line height - NO animation, instant update based on live location
+    // Ensure covered line doesn't extend beyond the last stop
+    const maxCoveredHeight = lineHeight; // Can't exceed total line height
+    const coveredHeight = Math.min(Math.max(0, busPositionFromLineStart), maxCoveredHeight);
     routeLineCovered.style.transition = 'none';
     routeLineCovered.style.top = '0';
     routeLineCovered.style.bottom = 'auto';
-    routeLineCovered.style.height = Math.max(0, busPositionFromLineStart) + 'px';
+    routeLineCovered.style.height = coveredHeight + 'px';
+    routeLineCovered.style.maxHeight = maxCoveredHeight + 'px';
+    routeLineCovered.style.overflow = 'hidden'; // Prevent overflow
 }
 
 // Toggle bus dropdown

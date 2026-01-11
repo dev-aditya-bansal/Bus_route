@@ -2,39 +2,63 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: #f8f9fa;
-    padding: 12px 8px;
-    line-height: 1.4;
+    padding: 8px 6px;
+    padding-top: max(8px, env(safe-area-inset-top));
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+    padding-left: max(6px, env(safe-area-inset-left));
+    padding-right: max(6px, env(safe-area-inset-right));
+    line-height: 1.3;
+    margin: 0;
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height for mobile browsers */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
-.container { max-width: 500px; margin: 0 auto; }
+.container { 
+    max-width: 100%;
+    width: 100%;
+    margin: 0 auto; 
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0 4px;
+}
 
 .header {
-    text-align: center; padding: 20px 0 16px;
+    text-align: center; padding: 12px 0 10px;
     background: linear-gradient(135deg, #4CAF50, #45a049);
-    color: white; border-radius: 16px; margin-bottom: 16px;
+    color: white; border-radius: 12px; margin-bottom: 8px;
+    flex-shrink: 0;
 }
-.header h1 { font-size: clamp(1.4rem, 8vw, 1.8rem); font-weight: 700; }
-.header p { font-size: 0.9rem; opacity: 0.9; margin-top: 4px; }
+.header h1 { font-size: clamp(1.1rem, 6vw, 1.4rem); font-weight: 700; }
+.header p { font-size: 0.8rem; opacity: 0.9; margin-top: 2px; }
 
 .controls {
-    background: white; padding: 16px; border-radius: 16px;
-    display: flex; gap: 8px; margin-bottom: 16px;
+    background: white; padding: 10px; border-radius: 12px;
+    display: flex; gap: 6px; margin-bottom: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     flex-wrap: wrap;
+    flex-shrink: 0;
+    align-items: center;
 }
 .custom-dropdown {
     flex: 1;
     position: relative;
     min-width: 150px;
+    min-width: 0; /* Allow flexbox to shrink on mobile */
 }
 
 .dropdown-selected {
-    padding: 14px 12px;
-    font-size: 16px;
+    padding: 8px 10px;
+    font-size: 14px;
     font-weight: 600;
     border: 2px solid #e0e0e0;
-    border-radius: 12px;
+    border-radius: 10px;
     cursor: pointer;
-    min-height: 48px;
+    min-height: 44px; /* Better touch target for mobile */
     transition: all 0.2s;
     background: white;
     color: #333;
@@ -43,6 +67,7 @@ body {
     justify-content: space-between;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     user-select: none;
+    touch-action: manipulation; /* Prevent double-tap zoom on mobile */
 }
 
 .dropdown-selected:hover {
@@ -81,6 +106,8 @@ body {
     opacity: 0;
     transition: max-height 0.3s ease, opacity 0.3s ease;
     margin-top: 4px;
+    max-width: 100vw; /* Prevent overflow on mobile */
+    transform: translateZ(0); /* Force hardware acceleration */
 }
 
 .dropdown-options.show {
@@ -109,8 +136,8 @@ body {
 }
 
 .dropdown-option {
-    padding: 14px 16px;
-    font-size: 16px;
+    padding: 10px 12px;
+    font-size: 14px;
     font-weight: 500;
     color: #333;
     cursor: pointer;
@@ -118,6 +145,8 @@ body {
     border-bottom: 1px solid #f0f0f0;
     display: flex;
     align-items: center;
+    min-height: 44px; /* Better touch target for mobile */
+    touch-action: manipulation; /* Prevent double-tap zoom */
 }
 
 .dropdown-option:last-child {
@@ -146,17 +175,18 @@ button {
 .view-toggle-container {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     flex: 0 0 auto;
-    padding: 8px 12px;
+    padding: 6px 10px;
     background: #f5f5f5;
-    border-radius: 12px;
-    min-width: 200px;
+    border-radius: 10px;
+    width: 50%;
+    min-width: 0; /* Allow flexbox to shrink */
     justify-content: center;
 }
 
 .toggle-label {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
     color: #666;
     user-select: none;
@@ -168,6 +198,8 @@ button {
     width: 50px;
     height: 26px;
     cursor: pointer;
+    touch-action: manipulation; /* Prevent double-tap zoom */
+    flex-shrink: 0; /* Prevent toggle from shrinking */
 }
 
 .toggle-switch input {
@@ -223,22 +255,32 @@ button:active { transform: scale(0.98); }
 button:disabled { opacity: 0.6; cursor: not-allowed; }
 
 #status {
-    text-align: center; padding: 8px 12px; 
-    font-size: 14px; font-weight: 500; color: #666;
-    background: #e8f5e8; border-radius: 8px; margin-bottom: 16px;
+    text-align: center; padding: 6px 10px; 
+    font-size: 12px; font-weight: 500; color: #666;
+    background: #e8f5e8; border-radius: 8px; margin-bottom: 8px;
+    flex-shrink: 0;
 }
 
 .view-container {
-    height: 280px; width: 100%;
-    border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-    margin-bottom: 16px; overflow: hidden;
+    flex: 1;
+    width: 100%;
+    border-radius: 12px; 
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    margin-bottom: 8px; 
+    overflow: hidden;
     position: relative;
+    min-height: 0;
+    touch-action: pan-x pan-y pinch-zoom; /* Better map interaction on mobile */
 }
 
 #map {
-    height: 280px; width: 100%;
-    border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-    margin-bottom: 16px; overflow: hidden;
+    height: 100%;
+    width: 100%;
+    border-radius: 12px; 
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    margin-bottom: 0; 
+    overflow: hidden;
+    touch-action: pan-x pan-y pinch-zoom; /* Better map interaction on mobile */
 }
 
 @keyframes pulse {
@@ -247,19 +289,28 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 }
 
 .eta-panel {
-    background: white; border-radius: 16px; padding: 20px 16px;
+    background: white; border-radius: 12px; padding: 12px 12px;
     box-shadow: 0 4px 16px rgba(0,0,0,0.1);
     position: relative;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
 }
 .eta-header {
-    text-align: center; margin-bottom: 20px; 
-    color: #333; font-size: 1.1rem; font-weight: 700;
-    padding-bottom: 12px; border-bottom: 2px solid #e0e0e0;
+    text-align: center; margin-bottom: 10px; 
+    color: #333; font-size: 0.95rem; font-weight: 700;
+    padding-bottom: 8px; border-bottom: 2px solid #e0e0e0;
+    flex-shrink: 0;
 }
 .eta-list { 
     position: relative;
-    padding-left: 50px;
-    min-height: 200px;
+    padding-left: 40px;
+    min-height: 100px;
+    overflow: visible;
+    flex: 1;
+    padding-bottom: 10px;
 }
 
 /* Hide digital view elements when map view is active */
@@ -290,10 +341,11 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 /* Integrated Route Line */
 .route-line-integrated {
     position: absolute;
-    left: 14px;
+    left: 12px;
     top: 0;
-    width: 14px;
+    width: 12px;
     z-index: 1;
+    overflow: hidden; /* Prevent line from extending beyond container */
 }
 
 .route-line-track {
@@ -305,6 +357,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
     background: #e0e0e0;
     border-radius: 4px;
     z-index: 1;
+    overflow: hidden; /* Prevent overflow */
 }
 
 .route-line-covered-integrated {
@@ -317,24 +370,25 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
     border-radius: 4px;
     transition: height 0.1s linear;
     z-index: 2;
+    overflow: hidden; /* Prevent overflow */
 }
 
 .bus-icon-integrated {
     position: absolute;
-    left: 21px;
+    left: 18px;
     top: 0;
     transform: translateX(-50%) translateY(-50%);
-    font-size: 20px;
+    font-size: 16px;
     z-index: 30;
     transition: top 0.1s linear;
     line-height: 1;
-    width: 36px;
-    height: 28px;
+    width: 30px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: #e74c3c;
-    border-radius: 6px;
+    border-radius: 5px;
     box-shadow: 0 3px 10px rgba(231, 76, 60, 0.4);
     color: white;
     font-weight: bold;
@@ -342,14 +396,14 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .eta-item {
     position: relative;
-    padding: 16px 12px 16px 50px;
-    border-radius: 12px;
+    padding: 10px 10px 10px 40px;
+    border-radius: 10px;
     background: white;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     transition: all 0.2s;
     z-index: 10;
-    min-height: 80px;
+    min-height: 60px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -358,14 +412,14 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 .eta-item::before {
     content: '';
     position: absolute;
-    left: -40px;
+    left: -32px;
     top: 50%;
     transform: translateY(-50%);
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     background: #2196F3;
-    border: 4px solid #f5f5f5;
+    border: 3px solid #f5f5f5;
     box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     z-index: 20;
 }
@@ -391,8 +445,8 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 .stop-info { 
     display: flex; 
     align-items: flex-start; 
-    gap: 12px; 
-    margin-bottom: 8px; 
+    gap: 8px; 
+    margin-bottom: 4px; 
 }
 
 .stop-info-left {
@@ -402,27 +456,27 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 }
 
 .stop-icon-small {
-    font-size: 18px;
+    font-size: 16px;
     color: #666;
 }
 
 .stop-name { 
     font-weight: 600; 
-    font-size: 15px; 
+    font-size: 13px; 
     color: #333; 
     flex: 1; 
-    line-height: 1.4;
+    line-height: 1.3;
 }
 
 .eta-time { 
-    font-size: 18px; 
+    font-size: 14px; 
     font-weight: 700; 
     color: #2E7D32; 
-    margin-bottom: 4px; 
+    margin-bottom: 2px; 
 }
 
 .eta-progress { 
-    font-size: 13px; 
+    font-size: 11px; 
     color: #666; 
 }
 
@@ -439,9 +493,254 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
     text-align: center;
 }
 
+/* Mobile-first responsive design */
+@media (max-width: 480px) {
+    body {
+        padding: 6px 4px;
+        padding-top: max(6px, env(safe-area-inset-top));
+        padding-bottom: max(6px, env(safe-area-inset-bottom));
+        padding-left: max(4px, env(safe-area-inset-left));
+        padding-right: max(4px, env(safe-area-inset-right));
+    }
+    
+    .container {
+        padding: 0 2px;
+    }
+    
+    .header {
+        padding: 10px 0 8px;
+        margin-bottom: 6px;
+    }
+    
+    .header h1 {
+        font-size: 1rem;
+    }
+    
+    .controls {
+        padding: 8px;
+        gap: 4px;
+        margin-bottom: 6px;
+    }
+    
+    .view-toggle-container {
+        width: 100%;
+        margin-bottom: 6px;
+        padding: 8px;
+        min-height: 44px; /* Better touch target */
+    }
+    
+    .custom-dropdown {
+        width: 100%;
+        min-width: 100%;
+    }
+    
+    .dropdown-selected {
+        font-size: 13px;
+        padding: 10px 12px;
+    }
+    
+    .toggle-label {
+        font-size: 11px;
+    }
+    
+    #status {
+        padding: 6px 8px;
+        font-size: 11px;
+        margin-bottom: 6px;
+    }
+    
+    .eta-panel {
+        padding: 10px 8px;
+    }
+    
+    .eta-header {
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+        padding-bottom: 6px;
+    }
+    
+    .eta-list {
+        padding-left: 35px;
+    }
+    
+    .eta-item {
+        padding: 8px 8px 8px 35px;
+        min-height: 55px;
+        margin-bottom: 6px;
+    }
+    
+    .stop-name {
+        font-size: 12px;
+    }
+    
+    .eta-time {
+        font-size: 13px;
+    }
+    
+    .eta-progress {
+        font-size: 10px;
+    }
+    
+    .route-line-integrated {
+        left: 10px;
+        width: 10px;
+    }
+    
+    .bus-icon-integrated {
+        left: 15px;
+        width: 28px;
+        height: 22px;
+        font-size: 14px;
+    }
+    
+    .eta-item::before {
+        left: -28px;
+        width: 10px;
+        height: 10px;
+    }
+}
+
+/* Small tablets and large phones */
+@media (min-width: 481px) and (max-width: 767px) {
+    .container {
+        max-width: 100%;
+        padding: 0 8px;
+    }
+    
+    .view-toggle-container {
+        width: 48%;
+    }
+    
+    .custom-dropdown {
+        width: 48%;
+    }
+}
+
+/* Tablets and small desktops */
 @media (min-width: 768px) {
-    .container { max-width: 800px; }
-    #map { height: 400px; }
-    .view-container { height: 400px; }
-    #lineView { height: 400px; }
+    .container { 
+        max-width: 600px; 
+        padding: 0 12px;
+    }
+    
+    body {
+        padding: 12px 8px;
+    }
+    
+    .header {
+        padding: 16px 0 14px;
+        margin-bottom: 12px;
+    }
+    
+    .header h1 {
+        font-size: clamp(1.2rem, 4vw, 1.6rem);
+    }
+    
+    .controls {
+        padding: 14px;
+        margin-bottom: 12px;
+    }
+    
+    #status {
+        padding: 8px 12px;
+        font-size: 13px;
+        margin-bottom: 12px;
+    }
+    
+    .eta-panel {
+        padding: 16px 14px;
+    }
+    
+    .eta-item {
+        padding: 12px 12px 12px 45px;
+        min-height: 65px;
+    }
+    
+    .stop-name {
+        font-size: 14px;
+    }
+    
+    .eta-time {
+        font-size: 15px;
+    }
+}
+
+/* Large tablets and desktops */
+@media (min-width: 1024px) {
+    .container { 
+        max-width: 800px; 
+    }
+    
+    .header {
+        padding: 20px 0 16px;
+    }
+    
+    .controls {
+        padding: 16px;
+    }
+    
+    .eta-panel {
+        padding: 20px 16px;
+    }
+}
+
+/* Landscape orientation on mobile */
+@media (max-width: 767px) and (orientation: landscape) {
+    body {
+        padding: 4px 4px;
+        padding-top: max(4px, env(safe-area-inset-top));
+        padding-bottom: max(4px, env(safe-area-inset-bottom));
+        padding-left: max(4px, env(safe-area-inset-left));
+        padding-right: max(4px, env(safe-area-inset-right));
+    }
+    
+    .header {
+        padding: 8px 0 6px;
+        margin-bottom: 4px;
+    }
+    
+    .header h1 {
+        font-size: 0.95rem;
+    }
+    
+    .controls {
+        padding: 6px;
+        margin-bottom: 4px;
+    }
+    
+    #status {
+        padding: 4px 8px;
+        margin-bottom: 4px;
+    }
+    
+    .eta-panel {
+        padding: 8px;
+    }
+    
+    .eta-header {
+        margin-bottom: 6px;
+        padding-bottom: 4px;
+    }
+    
+    .eta-item {
+        padding: 6px 6px 6px 30px;
+        min-height: 50px;
+        margin-bottom: 4px;
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .stop-icon,
+    .bus-icon-integrated {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+}
+
+/* Prevent text size adjustment on iOS */
+@media screen and (max-width: 767px) {
+    html {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+    }
 }
