@@ -45,6 +45,12 @@ let isBusAtStop = false; // Track if bus is currently at a stop
 let stopETAs = {}; // Store ETA in seconds for each stop index
 let isCalculatingETA = false; // Prevent multiple simultaneous ETA calculations
 
+// Store vehicle details (odometer and driver name)
+let vehicleDetails = {
+    odometer: null,
+    driverName: null
+};
+
 // View toggle variables
 let currentView = 'map'; // 'map' or 'line'
 
@@ -353,6 +359,9 @@ function selectBus(busId) {
     updateETAList();
     updateStatus(`🔄 Switched to Bus ${VEHICLE_ID} - Fetching location...`);
     
+    // Fetch vehicle details for the new bus
+    fetchVehicleDetails();
+    
     // Start tracking new bus
     startLiveLocationTracking();
 }
@@ -426,6 +435,9 @@ function initMap() {
     // Initialize ETA list IMMEDIATELY
     updateETAList();
     updateStatus('✅ Ready - Fetching live location...');
+    
+    // Fetch vehicle details for the default bus
+    fetchVehicleDetails();
     
     // Start fetching live bus location (animation will start automatically when location is received)
     startLiveLocationTracking();
@@ -700,6 +712,76 @@ async function fetchETAFromCurrentLocation(busLat, busLng, targetStopIndex) {
         return null;
     } finally {
         window[calculationKey] = false;
+    }
+}
+
+// Fetch vehicle details (odometer and driver name) from API
+async function fetchVehicleDetails() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/${VEHICLE_ID}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${API_TOKEN}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status} ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        
+        if (result.message === 'Success' && result.data) {
+            // Extract odometer and driver name
+            vehicleDetails.odometer = result.data.odometer || null;
+            vehicleDetails.driverName = result.data.driver1?.fullname || null;
+            
+            // Update display
+            updateVehicleDetailsDisplay();
+            
+            return vehicleDetails;
+        } else {
+            throw new Error('Invalid API response format');
+        }
+    } catch (error) {
+        console.error('Error fetching vehicle details:', error);
+        // Set to null on error
+        vehicleDetails.odometer = null;
+        vehicleDetails.driverName = null;
+        updateVehicleDetailsDisplay();
+        return null;
+    }
+}
+
+// Update vehicle details display on screen
+function updateVehicleDetailsDisplay() {
+    const odometerElement = document.getElementById('vehicle-odometer');
+    const driverElement = document.getElementById('vehicle-driver');
+    
+    if (odometerElement) {
+        if (vehicleDetails.odometer !== null) {
+            // Format odometer with thousand separators
+            const formattedOdometer = vehicleDetails.odometer.toLocaleString('en-US', {
+                maximumFractionDigits: 1,
+                minimumFractionDigits: 1
+            });
+            odometerElement.textContent = `${formattedOdometer} km`;
+            odometerElement.style.opacity = '1';
+        } else {
+            odometerElement.textContent = 'N/A';
+            odometerElement.style.opacity = '0.6';
+        }
+    }
+    
+    if (driverElement) {
+        if (vehicleDetails.driverName) {
+            driverElement.textContent = vehicleDetails.driverName;
+            driverElement.style.opacity = '1';
+        } else {
+            driverElement.textContent = 'No driver assigned';
+            driverElement.style.opacity = '0.6';
+        }
     }
 }
 
