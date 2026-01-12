@@ -45,11 +45,12 @@ let isBusAtStop = false; // Track if bus is currently at a stop
 let stopETAs = {}; // Store ETA in seconds for each stop index
 let isCalculatingETA = false; // Prevent multiple simultaneous ETA calculations
 
-// Store vehicle details (odometer, driver name, and engineOn)
+// Store vehicle details (odometer, driver name, engineOn, and speed)
 let vehicleDetails = {
     odometer: null,
     driverName: null,
-    engineOn: null
+    engineOn: null,
+    speed: null
 };
 
 // View toggle variables
@@ -346,6 +347,7 @@ function selectBus(busId) {
     step = 0;
     hasReceivedFirstLocation = false;
     vehicleDetails.engineOn = null;
+    vehicleDetails.speed = null;
     
     // Stop current tracking
     stopLiveLocationTracking();
@@ -752,6 +754,7 @@ async function fetchVehicleDetails() {
         vehicleDetails.odometer = null;
         vehicleDetails.driverName = null;
         vehicleDetails.engineOn = null;
+        vehicleDetails.speed = null;
         updateVehicleDetailsDisplay();
         return null;
     }
@@ -762,6 +765,7 @@ function updateVehicleDetailsDisplay() {
     const odometerElement = document.getElementById('vehicle-odometer');
     const driverElement = document.getElementById('vehicle-driver');
     const engineElement = document.getElementById('vehicle-engine');
+    const speedElement = document.getElementById('vehicle-speed');
     
     if (odometerElement) {
         if (vehicleDetails.odometer !== null) {
@@ -798,6 +802,16 @@ function updateVehicleDetailsDisplay() {
             engineElement.textContent = 'N/A';
             engineElement.style.opacity = '0.6';
             engineElement.style.color = '#333';
+        }
+    }
+    
+    if (speedElement) {
+        if (vehicleDetails.speed !== null) {
+            speedElement.textContent = `${Math.round(vehicleDetails.speed)} km/h`;
+            speedElement.style.opacity = '1';
+        } else {
+            speedElement.textContent = 'N/A';
+            speedElement.style.opacity = '0.6';
         }
     }
 }
@@ -837,6 +851,11 @@ async function fetchLiveLocation() {
                 // Log the data structure to help debug
                 console.log('API response data keys:', Object.keys(result.data));
                 console.log('Looking for engineOn in:', result.data);
+            }
+            
+            // Extract speed from API response
+            if (result.data.speed !== undefined) {
+                vehicleDetails.speed = parseFloat(result.data.speed) || 0;
             }
             
             // Always update display when we have location data
@@ -966,6 +985,41 @@ function stopLiveLocationTracking() {
     if (liveLocationInterval) {
         clearInterval(liveLocationInterval);
         liveLocationInterval = null;
+    }
+}
+
+// Manual refresh function - refreshes everything
+async function manualRefresh() {
+    const refreshButton = document.getElementById('refreshButton');
+    
+    // Add refreshing class for animation
+    if (refreshButton) {
+        refreshButton.classList.add('refreshing');
+        refreshButton.disabled = true;
+    }
+    
+    updateStatus('🔄 Refreshing...');
+    
+    try {
+        // Fetch vehicle details
+        await fetchVehicleDetails();
+        
+        // Fetch live location (this will also update ETAs)
+        await fetchLiveLocation();
+        
+        // Update ETA list
+        updateETAList();
+        
+        updateStatus('✅ Refreshed successfully');
+    } catch (error) {
+        console.error('Error during manual refresh:', error);
+        updateStatus(`⚠️ Refresh error: ${error.message}`);
+    } finally {
+        // Remove refreshing class
+        if (refreshButton) {
+            refreshButton.classList.remove('refreshing');
+            refreshButton.disabled = false;
+        }
     }
 }
 

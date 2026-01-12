@@ -37,22 +37,33 @@ body {
 .header p { font-size: 0.8rem; opacity: 0.9; margin-top: 2px; }
 
 .controls {
-    background: white; padding: 10px; border-radius: 12px;
-    display: flex; gap: 6px; margin-bottom: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    flex-wrap: wrap;
-    flex-shrink: 0;
+    background: white; 
+    padding: 8px !important; 
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    gap: 6px;
 }
 
 .vehicle-info {
     background: white; padding: 10px 12px; border-radius: 12px;
-    display: flex; gap: 16px; margin-bottom: 8px;
+    display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     flex-wrap: wrap;
     flex-shrink: 0;
     align-items: center;
     justify-content: space-around;
+}
+
+.vehicle-info-item-separator {
+    display: flex;
+    align-items: center;
+    justify-content: center; 
+    width: 100%;
+    gap: 16px;
 }
 
 .vehicle-info-item {
@@ -92,11 +103,64 @@ body {
     white-space: nowrap;
 }
 .custom-dropdown {
-    flex: 1;
+    width: 100%;
     position: relative;
-    min-width: 150px;
-    min-width: 0; /* Allow flexbox to shrink on mobile */
+    min-width: 120px;
+    max-width: none;
     z-index: 3000;
+    flex-shrink: 1;
+}
+
+.controls-top {
+    display: flex;
+    align-items: center;
+    padding: 4px 2px;
+    background: #f5f5f5;
+    border-radius: 10px;
+    width: 100%; /* Allow flexbox to shrink */
+    justify-content: center;
+    flex-shrink: 1;
+}
+
+.refresh-button {
+    padding: 6px 8px;
+    font-size: 14px;
+    border: 2px solid #4CAF50;
+    border-radius: 8px;
+    background: #4CAF50;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 36px;
+    height: 36px;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.refresh-button:hover {
+    background: #45a049;
+    border-color: #45a049;
+    color: white;
+    box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+}
+
+.refresh-button:active {
+    transform: scale(0.98);
+}
+
+.refresh-button.refreshing {
+    animation: spin 1s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 .dropdown-selected {
@@ -223,14 +287,15 @@ button {
 .view-toggle-container {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     flex: 0 0 auto;
-    padding: 6px 10px;
+    padding: 4px 8px;
     background: #f5f5f5;
     border-radius: 10px;
-    width: 50%;
     min-width: 0; /* Allow flexbox to shrink */
     justify-content: center;
+    flex-shrink: 1;
+    width: 80%;
 }
 
 .toggle-label {
@@ -565,9 +630,52 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
     }
     
     .controls {
-        padding: 8px;
-        gap: 4px;
-        margin-bottom: 6px;
+        padding: 4px !important;
+        gap: 3px;
+        margin-bottom: 4px;
+        flex-wrap: wrap;
+    }
+    
+    .controls-top {
+        padding: 2px 2px;
+        height: 36px;
+        min-height: 36px;
+        max-height: 36px;
+    }
+    
+    .view-toggle-container {
+        padding: 3px 6px;
+        min-height: 32px;
+        height: 32px;
+    }
+    
+    .toggle-label {
+        font-size: 10px;
+    }
+    
+    .toggle-switch {
+        width: 42px;
+        height: 22px;
+    }
+    
+    .toggle-slider:before {
+        height: 18px;
+        width: 18px;
+    }
+    
+    .toggle-switch input:checked + .toggle-slider:before {
+        transform: translateX(20px);
+    }
+    
+    .refresh-button {
+        margin-left: 0;
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        min-height: 32px;
+        padding: 5px;
+        font-size: 13px;
+        margin-top: 0;
     }
     
     .vehicle-info {
@@ -594,15 +702,14 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
     
     .view-toggle-container {
         width: 100%;
-        margin-bottom: 6px;
-        padding: 8px;
-        min-height: 44px; /* Better touch target */
+        margin-bottom: 0;
     }
     
     .custom-dropdown {
         width: 100%;
         min-width: 100%;
     }
+    
     
     .dropdown-selected {
         font-size: 13px;
@@ -678,11 +785,23 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
     }
     
     .view-toggle-container {
-        width: 48%;
+        flex: 0 0 auto;
     }
     
     .custom-dropdown {
-        width: 48%;
+        flex: 1;
+        min-width: 120px;
+        max-width: none;
+    }
+    
+    .controls {
+        flex-wrap: nowrap;
+    }
+    
+    .refresh-button {
+        min-width: 44px;
+        margin-left: auto;
+        flex-shrink: 0;
     }
 }
 
