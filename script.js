@@ -43,6 +43,7 @@ let currentBusLocation = null;
 let currentStopIndex = -1; // -1 means not determined yet
 let isBusAtStop = false; // Track if bus is currently at a stop
 let stopETAs = {}; // Store ETA in seconds for each stop index
+let stopArrivalTimes = {}; // Store arrival time for each stop index
 let isCalculatingETA = false; // Prevent multiple simultaneous ETA calculations
 
 // Store vehicle details (odometer, driver name, engineOn, and speed)
@@ -343,6 +344,7 @@ function selectBus(busId) {
     currentStopIndex = -1;
     isBusAtStop = false;
     stopETAs = {};
+    stopArrivalTimes = {};
     index = -1;
     step = 0;
     hasReceivedFirstLocation = false;
@@ -466,15 +468,34 @@ function updateETAList() {
         // Determine if this is the current stop based on live location
         const isCurrentStop = (currentStopIndex >= 0 && i === currentStopIndex);
         const isNextStop = (currentStopIndex >= 0 && i === currentStopIndex + 1);
-        const hasPassed = i < currentStopIndex || (currentStopIndex < 0 && i < index);
+        // A stop has passed if its index is less than currentStopIndex (not equal)
+        const hasPassed = (currentStopIndex >= 0 && i < currentStopIndex) || (currentStopIndex < 0 && i < index);
         const hasETA = stopETAs[i] !== undefined;
         
-        if (hasPassed) {
-            // Past stops
-            etaDisplay = '✅ Arrived';
-        } else if (isCurrentStop) {
-            // Current stop
-            etaDisplay = '📍 At Stop';
+        if (isCurrentStop) {
+            // Current stop - show arrival time (record it if not already recorded)
+            // Note: Arrival time will be set from API's lastPacket when location is fetched
+            if (stopArrivalTimes[i]) {
+                const arrivalTime = stopArrivalTimes[i];
+                const timeStr = arrivalTime.toLocaleTimeString([], 
+                    {hour: '2-digit', minute: '2-digit', second: '2-digit'});
+                etaDisplay = `✅ Arrived: ${timeStr}`;
+            } else {
+                // Fallback to current time if not set yet
+                const now = new Date();
+                stopArrivalTimes[i] = now;
+                const timeStr = now.toLocaleTimeString([], 
+                    {hour: '2-digit', minute: '2-digit', second: '2-digit'});
+                etaDisplay = `✅ Arrived: ${timeStr}`;
+            }
+        } else if (hasPassed) {
+            // Past stops - show arrival time if available
+            if (stopArrivalTimes[i]) {
+                const arrivalTime = stopArrivalTimes[i];
+                const timeStr = arrivalTime.toLocaleTimeString([], 
+                    {hour: '2-digit', minute: '2-digit', second: '2-digit'});
+                etaDisplay = `✅ Arrived: ${timeStr}`;
+            }
         } else if (hasETA && currentBusLocation) {
             // Any future stop with real ETA from Distance Matrix API
             const etaSeconds = stopETAs[i];
@@ -880,12 +901,29 @@ async function fetchLiveLocation() {
                 
                 // Check if we've reached a new stop
                 const stopChanged = detectedStopIndex !== currentStopIndex;
+                // Use API's lastPacket time if available, otherwise use current time
+                const arrivalTime = result.data.lastPacket ? new Date(result.data.lastPacket) : new Date();
+                
                 if (stopChanged) {
+                    // Record arrival times for stops that were just passed
+                    if (currentStopIndex >= 0 && detectedStopIndex > currentStopIndex) {
+                        // Bus moved forward - record arrival time for stops that were passed
+                        for (let i = currentStopIndex; i < detectedStopIndex; i++) {
+                            if (!stopArrivalTimes[i]) {
+                                stopArrivalTimes[i] = arrivalTime;
+                            }
+                        }
+                    }
                     currentStopIndex = detectedStopIndex;
                     // Clear ETAs for stops we've passed
                     for (let i = 0; i <= currentStopIndex; i++) {
                         delete stopETAs[i];
                     }
+                }
+                
+                // If bus is at a stop and we haven't recorded arrival time yet, record it
+                if (isBusAtStop && currentStopIndex >= 0 && !stopArrivalTimes[currentStopIndex]) {
+                    stopArrivalTimes[currentStopIndex] = arrivalTime;
                 }
                 
                 // IMPORTANT: Always sync index with currentStopIndex when bus is at stop
