@@ -45,10 +45,11 @@ let isBusAtStop = false; // Track if bus is currently at a stop
 let stopETAs = {}; // Store ETA in seconds for each stop index
 let isCalculatingETA = false; // Prevent multiple simultaneous ETA calculations
 
-// Store vehicle details (odometer and driver name)
+// Store vehicle details (odometer, driver name, and engineOn)
 let vehicleDetails = {
     odometer: null,
-    driverName: null
+    driverName: null,
+    engineOn: null
 };
 
 // View toggle variables
@@ -344,6 +345,7 @@ function selectBus(busId) {
     index = -1;
     step = 0;
     hasReceivedFirstLocation = false;
+    vehicleDetails.engineOn = null;
     
     // Stop current tracking
     stopLiveLocationTracking();
@@ -749,6 +751,7 @@ async function fetchVehicleDetails() {
         // Set to null on error
         vehicleDetails.odometer = null;
         vehicleDetails.driverName = null;
+        vehicleDetails.engineOn = null;
         updateVehicleDetailsDisplay();
         return null;
     }
@@ -758,6 +761,7 @@ async function fetchVehicleDetails() {
 function updateVehicleDetailsDisplay() {
     const odometerElement = document.getElementById('vehicle-odometer');
     const driverElement = document.getElementById('vehicle-driver');
+    const engineElement = document.getElementById('vehicle-engine');
     
     if (odometerElement) {
         if (vehicleDetails.odometer !== null) {
@@ -783,6 +787,19 @@ function updateVehicleDetailsDisplay() {
             driverElement.style.opacity = '0.6';
         }
     }
+    
+    if (engineElement) {
+        if (vehicleDetails.engineOn !== null) {
+            const engineStatus = vehicleDetails.engineOn ? '🟢 ON' : '🔴 OFF';
+            engineElement.textContent = engineStatus;
+            engineElement.style.opacity = '1';
+            engineElement.style.color = vehicleDetails.engineOn ? '#2E7D32' : '#C62828';
+        } else {
+            engineElement.textContent = 'N/A';
+            engineElement.style.opacity = '0.6';
+            engineElement.style.color = '#333';
+        }
+    }
 }
 
 // Fetch live bus location from API
@@ -805,6 +822,25 @@ async function fetchLiveLocation() {
         if (result.message === 'Success' && result.data) {
             const lat = parseFloat(result.data.latitude);
             const lng = parseFloat(result.data.longitude);
+            
+            // Extract engineOn status from API response - check multiple possible field names
+            if (result.data.engineOn !== undefined) {
+                vehicleDetails.engineOn = result.data.engineOn === true || result.data.engineOn === 'true' || result.data.engineOn === 1;
+                console.log('Engine status extracted (engineOn):', vehicleDetails.engineOn);
+            } else if (result.data.engine_on !== undefined) {
+                vehicleDetails.engineOn = result.data.engine_on === true || result.data.engine_on === 'true' || result.data.engine_on === 1;
+                console.log('Engine status extracted (engine_on):', vehicleDetails.engineOn);
+            } else if (result.data.engine !== undefined) {
+                vehicleDetails.engineOn = result.data.engine === true || result.data.engine === 'true' || result.data.engine === 1;
+                console.log('Engine status extracted (engine):', vehicleDetails.engineOn);
+            } else {
+                // Log the data structure to help debug
+                console.log('API response data keys:', Object.keys(result.data));
+                console.log('Looking for engineOn in:', result.data);
+            }
+            
+            // Always update display when we have location data
+            updateVehicleDetailsDisplay();
             
             if (!isNaN(lat) && !isNaN(lng)) {
                 // Store current bus location

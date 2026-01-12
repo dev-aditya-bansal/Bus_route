@@ -63,6 +63,11 @@ body {
     min-width: 0;
 }
 
+.vehicle-info-item-full {
+    width: 100%;
+    flex: 1 1 100%;
+}
+
 .vehicle-info-item i {
     font-size: 16px;
     color: #4CAF50;
