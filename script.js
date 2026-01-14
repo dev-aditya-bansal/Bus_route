@@ -20,10 +20,10 @@ let hasReceivedFirstLocation = false; // Track if we've received the first live 
 
 // Bus data - list of available buses
 const buses = [
+    { id: 83089, name: 'A 7702 S - D01' },
     { id: 88440, name: 'A 7696 S - D02' },
     { id: 92066, name: 'B 7012 XXA - D05' },
-    { id: 83089, name: 'A 9174 RN - D01' },
-    { id: 81596, name: 'A 1513 SC - S07' },
+    { id: 69153, name: 'B 1948 PDJ - D06' },
 ];
 
 // API Configuration
