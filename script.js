@@ -740,7 +740,7 @@ function updateETAList() {
             etaTime = arrivalTime.toLocaleTimeString([], 
                 {hour: '2-digit', minute: '2-digit', second: '2-digit'});
             const etaMinutes = Math.ceil(etaSeconds / 60);
-            etaDisplay = `ETA: ${etaTime} (${etaMinutes} min)`;
+            etaDisplay = `ETA: ${etaTime}`;
             progressText = `⏳ ${etaMinutes} minutes away`;
         } else if (isNextStop && currentBusLocation) {
             // Next stop but ETA not yet calculated
@@ -757,6 +757,40 @@ function updateETAList() {
             progressText = `⏳ ${etaTime}`;
         }
         
+        // Calculate minutes remaining for wifi box
+        let wifiBoxHTML = '';
+        if (!hasPassed && !isCurrentStop) {
+            let minutesRemaining = null;
+            if (hasETA && currentBusLocation) {
+                // Use calculated ETA
+                const etaSeconds = stopETAs[i];
+                minutesRemaining = Math.max(1, Math.ceil(etaSeconds / 60));
+            } else {
+                // Estimate based on segments
+                const remainingSegments = Math.max(0, i - (currentStopIndex >= 0 ? currentStopIndex : index));
+                minutesRemaining = Math.ceil(remainingSegments * DURATION_PER_SEGMENT / 60000) || 1;
+            }
+            
+            // Create wifi icon SVG
+            const wifiIconSVG = `
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 9L3 11C7.97 6.03 16.03 6.03 21 11L23 9C16.93 2.93 7.07 2.93 1 9Z" fill="#ff9800"/>
+                    <path d="M5 13L7 15C9.76 12.24 14.24 12.24 17 15L19 13C15.14 9.14 8.86 9.14 5 13Z" fill="#ff9800"/>
+                    <circle cx="12" cy="19" r="2" fill="#ff9800"/>
+                </svg>
+            `;
+            
+            wifiBoxHTML = `
+                <div class="eta-wifi-box">
+                    <div class="eta-wifi-icon">${wifiIconSVG}</div>
+                    <div class="eta-wifi-time">
+                        <span class="eta-wifi-minutes">${minutesRemaining}</span>
+                        <span class="eta-wifi-unit">min</span>
+                    </div>
+                </div>
+            `;
+        }
+        
         const item = document.createElement('div');
         let itemClass = 'eta-item';
         if (hasPassed) {
@@ -771,11 +805,13 @@ function updateETAList() {
             <div class="stop-info">
                 <div class="stop-info-left">
                     <i class="bi bi-bus-front stop-icon-small"></i>
-                    <div class="stop-name">${stop.stop_name}</div>
+                    <div class="stop-info-content">
+                        <div class="stop-name">${stop.stop_name}</div>
+                        <div class="eta-time">${etaDisplay}</div>
+                    </div>
                 </div>
             </div>
-            <div class="eta-time">${etaDisplay}</div>
-            <div class="eta-progress">${progressText}</div>
+            ${wifiBoxHTML}
         `;
         etaList.appendChild(item);
     });
