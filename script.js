@@ -1,12 +1,49 @@
 // Route data - embedded directly in JavaScript
-const route = [
-    {lat: -6.19871, lng: 106.74193, sequence: 1, stop_name: 'Kembangan West Jakarta City Jakarta Indonesia', estimated_time: '11:00:00'},
-    {lat: -6.23253, lng: 106.54487, sequence: 2, stop_name: 'Bitung Bitung Jaya Tangerang Regency Banten Indonesia', estimated_time: '11:02:00'},
-    {lat: -6.18556, lng: 106.45467, sequence: 3, stop_name: 'Balaraja Tangerang Regency Banten Indonesia', estimated_time: '11:05:00'},
-    {lat: -6.13811, lng: 106.29415, sequence: 4, stop_name: 'Kragilan Serang Regency Banten Indonesia', estimated_time: '11:07:00'},
-    {lat: -6.12588, lng: 106.14047, sequence: 5, stop_name: 'Serang Serang City Banten Indonesia', estimated_time: '11:09:00'},
-    {lat: -6.01872, lng: 106.0558, sequence: 6, stop_name: 'Cilegon Banten Indonesia', estimated_time: '11:11:00'},
-    {lat: -6.03439, lng: 105.93831, sequence: 7, stop_name: 'Masjid Al Asri PT. Chandra Asri Petrochemical Tbk Jalan Brigadir Jenderal Katamso Gunungsugih Cilegon Banten Indonesia', estimated_time: '11:13:00'}
+const route1 = [
+    {lat: -6.26155, lng: 106.81327, sequence: 1, stop_name: 'Kemang', estimated_time: '11:00:00'},
+    {lat: -6.24357, lng: 106.86189, sequence: 2, stop_name: 'Carefour', estimated_time: '11:02:00'},
+    {lat: -6.1162, lng: 106.15478, sequence: 3, stop_name: 'Ciceri', estimated_time: '11:05:00'},
+    {lat: -6.12289, lng: 106.1585, sequence: 4, stop_name: 'Kebon Jahe', estimated_time: '11:07:00'}, // done
+    {lat: -6.12588, lng: 106.14047, sequence: 5, stop_name: 'Ciracas', estimated_time: '11:09:00'},
+    {lat: -6.01872, lng: 106.0558, sequence: 6, stop_name: 'Citraland', estimated_time: '11:11:00'},
+    {lat: -6.03439, lng: 105.93831, sequence: 7, stop_name: 'Kepandean', estimated_time: '11:13:00'},
+    {lat: -6.03439, lng: 105.93831, sequence: 8, stop_name: 'Akses Tol Serang Barat', estimated_time: '11:13:00'},
+    {lat: -6.03439, lng: 105.93831, sequence: 9, stop_name: 'Exit Tol Merak', estimated_time: '11:13:00'},
+    {lat: -6.03439, lng: 105.93831, sequence: 10, stop_name: 'FAM', estimated_time: '11:13:00'}
+];
+
+const route2 = [
+    {lat: -6.19871, lng: 106.74193, sequence: 1, stop_name: 'Sari Asih Belakang', estimated_time: '11:00:00'},
+    {lat: -6.23253, lng: 106.54487, sequence: 2, stop_name: 'Kaligandu', estimated_time: '11:02:00'},
+    {lat: -6.18556, lng: 106.45467, sequence: 3, stop_name: 'Bumi Agung', estimated_time: '11:05:00'},
+    {lat: -6.13811, lng: 106.29415, sequence: 4, stop_name: 'Kelapa Dua', estimated_time: '11:07:00'},
+    {lat: -6.12588, lng: 106.14047, sequence: 5, stop_name: 'Kepandean', estimated_time: '11:09:00'},
+    {lat: -6.01872, lng: 106.0558, sequence: 6, stop_name: 'Akses Tol Serang Barat', estimated_time: '11:11:00'},
+    {lat: -6.03439, lng: 105.93831, sequence: 7, stop_name: 'Exit Tol Merak', estimated_time: '11:13:00'},
+    {lat: -6.03439, lng: 105.93831, sequence: 8, stop_name: 'FAM', estimated_time: '11:13:00'}
+];
+
+const route3 = [
+    {lat: -6.19871, lng: 106.74193, sequence: 1, stop_name: 'PCI', estimated_time: '11:00:00'},
+    {lat: -6.23253, lng: 106.54487, sequence: 2, stop_name: 'Perumnas', estimated_time: '11:02:00'},
+    {lat: -6.18556, lng: 106.45467, sequence: 3, stop_name: 'Palas', estimated_time: '11:05:00'},
+    {lat: -6.13811, lng: 106.29415, sequence: 4, stop_name: 'Pagebangan', estimated_time: '11:07:00'},
+    {lat: -6.12588, lng: 106.14047, sequence: 5, stop_name: 'Mesjid Agung', estimated_time: '11:09:00'},
+    {lat: -6.01872, lng: 106.0558, sequence: 6, stop_name: 'Simpang', estimated_time: '11:11:00'},
+    {lat: -6.03439, lng: 105.93831, sequence: 7, stop_name: 'Damkar', estimated_time: '11:13:00'},
+    {lat: -6.03439, lng: 105.93831, sequence: 8, stop_name: 'FAM', estimated_time: '11:13:00'}
+];
+
+const route4 = [
+    {lat: -6.19871, lng: 106.74193, sequence: 1, stop_name: 'FAM', estimated_time: '11:00:00'},
+    {lat: -6.23253, lng: 106.54487, sequence: 2, stop_name: 'Damkar', estimated_time: '11:02:00'},
+    {lat: -6.18556, lng: 106.45467, sequence: 3, stop_name: 'Krakatau Junction', estimated_time: '11:05:00'},
+    {lat: -6.13811, lng: 106.29415, sequence: 4, stop_name: 'Transmart', estimated_time: '11:07:00'},
+    {lat: -6.12588, lng: 106.14047, sequence: 5, stop_name: 'Simpang', estimated_time: '11:09:00'},
+    {lat: -6.01872, lng: 106.0558, sequence: 6, stop_name: 'Krenceng lewat depan (Jalan Raya Utama Anyer)', estimated_time: '11:11:00'},
+    {lat: -6.03439, lng: 105.93831, sequence: 7, stop_name: 'Warnasari', estimated_time: '11:13:00'},
+    {lat: -6.03439, lng: 105.93831, sequence: 8, stop_name: 'Oktip', estimated_time: '11:13:00'},
+    {lat: -6.03439, lng: 105.93831, sequence: 9, stop_name: 'Ex Sari Manis', estimated_time: '11:13:00'}
 ];
 
 // Global variables
@@ -18,25 +55,70 @@ const DELAY = DURATION_PER_SEGMENT / STEPS_PER_SEGMENT;
 let currentSegmentDuration = DURATION_PER_SEGMENT; // Not used - no animation
 let hasReceivedFirstLocation = false; // Track if we've received the first live location
 
+// Check if route should be reversed (5 PM to 5 AM Indonesian time - WIB UTC+7)
+function shouldReverseRoute() {
+    const now = new Date();
+    // Get UTC hours and add 7 for Indonesian time (WIB = UTC+7)
+    const utcHours = now.getUTCHours();
+    const indonesianHours = (utcHours + 7) % 24; // Add 7 hours and wrap around if needed
+    // Reverse route from 5 PM (17:00) to 5 AM (05:00)
+    // Normal route from 5 AM (05:00) to 5 PM (17:00)
+    return indonesianHours >= 17 || indonesianHours < 5;
+}
+
+// Get route with time-based reversal
+// Normal route: 5 AM to 5 PM (05:00 - 17:00)
+// Reversed route: 5 PM to 5 AM (17:00 - 05:00)
+function getRouteWithTimeReversal(originalRoute) {
+    if (!originalRoute || originalRoute.length === 0) {
+        return originalRoute;
+    }
+    
+    // If between 5 PM and 5 AM, reverse the route
+    if (shouldReverseRoute()) {
+        // Create a deep copy of the route array with new objects
+        const reversedRoute = originalRoute.slice().reverse().map((stop, index) => {
+            return {
+                lat: stop.lat,
+                lng: stop.lng,
+                sequence: index + 1,
+                stop_name: stop.stop_name,
+                estimated_time: stop.estimated_time
+            };
+        });
+        return reversedRoute;
+    }
+    
+    // Before 5 PM, return a copy of the original route (to avoid modifying originals)
+    return originalRoute.map(stop => ({
+        lat: stop.lat,
+        lng: stop.lng,
+        sequence: stop.sequence,
+        stop_name: stop.stop_name,
+        estimated_time: stop.estimated_time
+    }));
+}
+
 // Bus data - list of available buses
 const buses = [
-    { id: 83089, name: 'A 7702 S - D01' },
-    { id: 88440, name: 'A 7696 S - D02' },
-    { id: 92066, name: 'B 7012 XXA - D05' },
-    { id: 69153, name: 'B 1948 PDJ - D06' },
+    { id: 83089, name: 'A 7702 S - D01', route: route1 },
+    { id: 88440, name: 'A 7696 S - D02', route: route2 },
+    { id: 92066, name: 'B 7012 XXA - D05', route: route3 },
+    { id: 69153, name: 'B 1948 PDJ - D06', route: route4 },
 ];
 
 // API Configuration
 const API_BASE_URL = 'https://vsms-v2-public.mceasy.com/v1/vehicles';
-let VEHICLE_ID = 88440; // Default bus, will be updated when bus is selected
+let VEHICLE_ID = 83089; // Default bus, will be updated when bus is selected
+// Global route variable - set to default bus's route with time-based reversal
+let route = getRouteWithTimeReversal(route1); // Default to route1 for bus 83089
 const API_TOKEN = 'b5fU8a2Dc2y7zbacF4fccrFDTKeG27f3h5faua8dkDealKmYSRb5I0go3a2XUu0taiabbhuqba6ajLFTac48aSgcbf4bgJHej4fea6MQG6qUzr67gO4IL6L385syZJOW6kXbf75mFaLGuPxfmSV86A1aZg0p4RkayHOt2fC3TRPA6AV6zxaV7Ffz6F4DYKi4kv6Id7tS7FZa4SjKeRH9fktkhVBTV6yWOanlbc4kLafFecbbc9x6yOae60eGp8l8';
 const FETCH_INTERVAL = 5000; // 5 seconds
 
-// Distance Matrix API Configuration
-const DISTANCE_MATRIX_API_KEY = 'sAdRNgAPqmH2VOmZFazxvCIuq7cQt6wQb3emmeCSm4xBgcIcR02S4lPCfjWg5eoE';
-const DISTANCE_MATRIX_BASE_URL = 'https://api.distancematrix.ai/maps/api/distancematrix/json';
 const STOP_PROXIMITY_THRESHOLD = 0.05; // ~5.5km in degrees (rough approximation)
 const STOP_PROXIMITY_METERS = 500; // 500 meters - consider bus at stop if within this distance
+const DEFAULT_BUS_SPEED_KMPH = 40; // Default bus speed in km/h if not available from API
+const STOP_GEOFENCE_RADIUS_METERS = 100; // Geofence radius for stops in meters
 
 // Store current bus location and ETA data
 let currentBusLocation = null;
@@ -326,6 +408,13 @@ function selectBus(busId) {
         displayText.textContent = selectedBus.name;
     }
     
+    // Update global route variable to selected bus's route with time-based reversal
+    if (selectedBus && selectedBus.route) {
+        route = getRouteWithTimeReversal(selectedBus.route);
+        // Update route direction tracking
+        lastRouteDirection = shouldReverseRoute();
+    }
+    
     // Update selected option styling
     const options = document.querySelectorAll('.dropdown-option');
     options.forEach(opt => {
@@ -354,10 +443,52 @@ function selectBus(busId) {
     // Stop current tracking
     stopLiveLocationTracking();
     
-    // Reset bus marker position
-    if (busMarker && route.length > 0) {
+    // Reinitialize map with new route
+    if (map && route.length > 0) {
+        // Clear existing map layers (markers and polylines)
+        map.eachLayer((layer) => {
+            if (layer instanceof L.Marker || layer instanceof L.Polyline) {
+                map.removeLayer(layer);
+            }
+        });
+        
+        // Add new route line
+        const latLngs = route.map(p => [parseFloat(p.lat), parseFloat(p.lng)]);
+        L.polyline(latLngs, {color: '#e74c3c', weight: 4}).addTo(map);
+        
+        // Add new stop markers with ETA popups
+        route.forEach((stop, i) => {
+            const stopIcon = L.divIcon({
+                html: `<span style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-weight: bold; font-size: 14px;">${stop.sequence}</span>`, 
+                className: 'stop-icon', 
+                iconSize: [28, 28], 
+                iconAnchor: [14, 14]
+            });
+            const marker = L.marker([parseFloat(stop.lat), parseFloat(stop.lng)], {icon: stopIcon}).addTo(map);
+            
+            // ETA popup for each stop
+            const remaining = i * (DURATION_PER_SEGMENT / 1000 / 60);
+            marker.bindPopup(`
+                <b>${stop.stop_name}</b><br>
+                ETA: ${Math.ceil(remaining)} min<br>
+                Stop ${stop.sequence}/${route.length}
+            `);
+        });
+        
+        // Reset bus marker position to start of new route
         const start = [parseFloat(route[0].lat), parseFloat(route[0].lng)];
-        busMarker.setLatLng(start);
+        if (busMarker) {
+            busMarker.setLatLng(start);
+        } else {
+            // Create bus marker if it doesn't exist
+            const busIcon = L.divIcon({
+                html: '🚌', 
+                className: 'bus-icon', 
+                iconSize: [36, 36], 
+                iconAnchor: [18, 18]
+            });
+            busMarker = L.marker(start, { icon: busIcon }).addTo(map);
+        }
         map.panTo(start, { animate: true, duration: 0.5 });
     }
     
@@ -378,6 +509,12 @@ function initMap() {
     const container = document.querySelector('.container');
     if (container) {
         container.classList.add('map-view-active');
+    }
+    
+    // Ensure route is set for default bus with time-based reversal
+    const defaultBus = buses.find(bus => bus.id === VEHICLE_ID);
+    if (defaultBus && defaultBus.route) {
+        route = getRouteWithTimeReversal(defaultBus.route);
     }
     
     if (route.length === 0) { 
@@ -447,11 +584,105 @@ function initMap() {
     // Update date every minute to keep it current
     setInterval(updateCurrentDate, 60000);
     
+    // Initialize route direction tracking
+    lastRouteDirection = shouldReverseRoute();
+    
+    // Check and update route direction when time crosses 5 PM
+    checkAndUpdateRouteDirection();
+    // Check every minute if route direction needs to change
+    setInterval(checkAndUpdateRouteDirection, 60000);
+    
     // Fetch vehicle details for the default bus
     fetchVehicleDetails();
     
     // Start fetching live bus location (animation will start automatically when location is received)
     startLiveLocationTracking();
+}
+
+// Check if route direction needs to be updated based on time
+let lastRouteDirection = null; // Track last direction (false = normal 5 AM-5 PM, true = reversed 5 PM-5 AM)
+
+function checkAndUpdateRouteDirection() {
+    const currentDirection = shouldReverseRoute();
+    
+    // If direction changed, update the route
+    if (lastRouteDirection !== null && lastRouteDirection !== currentDirection) {
+        // Route direction changed - need to update
+        const selectedBus = buses.find(bus => bus.id === VEHICLE_ID);
+        if (selectedBus && selectedBus.route) {
+            route = getRouteWithTimeReversal(selectedBus.route);
+            
+            // Reinitialize map with new route direction
+            if (map && route.length > 0) {
+                // Store bus marker reference before clearing
+                const busMarkerExists = busMarker !== null && busMarker !== undefined;
+                const busMarkerLatLng = busMarker ? busMarker.getLatLng() : null;
+                
+                // Clear existing map layers (markers and polylines, but preserve tile layer)
+                map.eachLayer((layer) => {
+                    if (layer instanceof L.Marker || layer instanceof L.Polyline) {
+                        map.removeLayer(layer);
+                    }
+                });
+                
+                // Reset bus marker reference if it was removed
+                if (busMarkerExists) {
+                    busMarker = null;
+                }
+                
+                // Add new route line
+                const latLngs = route.map(p => [parseFloat(p.lat), parseFloat(p.lng)]);
+                L.polyline(latLngs, {color: '#e74c3c', weight: 4}).addTo(map);
+                
+                // Add new stop markers with ETA popups
+                route.forEach((stop, i) => {
+                    const stopIcon = L.divIcon({
+                        html: `<span style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-weight: bold; font-size: 14px;">${stop.sequence}</span>`, 
+                        className: 'stop-icon', 
+                        iconSize: [28, 28], 
+                        iconAnchor: [14, 14]
+                    });
+                    const marker = L.marker([parseFloat(stop.lat), parseFloat(stop.lng)], {icon: stopIcon}).addTo(map);
+                    
+                    // ETA popup for each stop
+                    const remaining = i * (DURATION_PER_SEGMENT / 1000 / 60);
+                    marker.bindPopup(`
+                        <b>${stop.stop_name}</b><br>
+                        ETA: ${Math.ceil(remaining)} min<br>
+                        Stop ${stop.sequence}/${route.length}
+                    `);
+                });
+                
+                // Reset bus marker position to start of new route
+                const start = [parseFloat(route[0].lat), parseFloat(route[0].lng)];
+                const busIcon = L.divIcon({
+                    html: '🚌', 
+                    className: 'bus-icon', 
+                    iconSize: [36, 36], 
+                    iconAnchor: [18, 18]
+                });
+                busMarker = L.marker(start, { icon: busIcon }).addTo(map);
+                map.panTo(start, { animate: true, duration: 0.5 });
+                
+                // Reset state for new route direction
+                currentBusLocation = null;
+                currentStopIndex = -1;
+                isBusAtStop = false;
+                stopETAs = {};
+                stopArrivalTimes = {};
+                index = -1;
+                step = 0;
+                hasReceivedFirstLocation = false;
+                
+                // Update ETA list
+                updateETAList();
+                updateStatus(`🔄 Route direction updated - ${currentDirection ? 'Reverse (5 PM - 5 AM)' : 'Normal (5 AM - 5 PM)'}`);
+            }
+        }
+    }
+    
+    // Update last direction
+    lastRouteDirection = currentDirection;
 }
 
 // Proper ETA calculation with real-time Distance Matrix API data
@@ -584,6 +815,48 @@ function calculateDistance(lat1, lng1, lat2, lng2) {
     return R * c;
 }
 
+// Haversine formula to calculate distance between two coordinates (in km)
+function haversineDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Earth radius in km
+    const toRad = deg => deg * Math.PI / 180;
+
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+
+    const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRad(lat1)) *
+        Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) ** 2;
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c; // km
+}
+
+// Calculate ETA using distance and speed
+function calculateETA(geoA, geoB, speedKmph) {
+    // Step 1: center-to-center distance
+    let distanceKm = haversineDistance(
+        geoA.lat, geoA.lng,
+        geoB.lat, geoB.lng
+    );
+
+    // Step 2: subtract geofence radii
+    distanceKm -= (geoA.radius / 1000);
+    distanceKm -= (geoB.radius / 1000);
+
+    if (distanceKm < 0) distanceKm = 0;
+
+    // Step 3: ETA in minutes
+    const etaMinutes = (distanceKm / speedKmph) * 60;
+
+    return {
+        distanceKm,
+        etaMinutes
+    };
+}
+
 // Determine which stop the bus is currently at or nearest to
 function determineCurrentStop(busLat, busLng) {
     let nearestStopIndex = -1;
@@ -685,63 +958,58 @@ function calculateAnimationPositionFromLiveLocation(busLat, busLng) {
     return null;
 }
 
-// Fetch ETA from current bus location to a specific stop using Distance Matrix API
-async function fetchETAFromCurrentLocation(busLat, busLng, targetStopIndex) {
+// Calculate ETA from current bus location to a specific stop using Haversine formula
+function calculateETAFromCurrentLocation(busLat, busLng, targetStopIndex) {
     if (targetStopIndex >= route.length || targetStopIndex < 0) {
         return null;
     }
-    
-    // Use a per-stop calculation flag to allow multiple ETAs to be calculated
-    const calculationKey = `calculating_${targetStopIndex}`;
-    if (window[calculationKey]) {
-        return null; // Already calculating for this stop
-    }
-    
-    window[calculationKey] = true;
     
     try {
         const targetStop = route[targetStopIndex];
         const destLat = parseFloat(targetStop.lat);
         const destLng = parseFloat(targetStop.lng);
         
-        const url = `${DISTANCE_MATRIX_BASE_URL}?origins=${busLat},${busLng}&destinations=${destLat},${destLng}&key=${DISTANCE_MATRIX_API_KEY}`;
+        // Get current bus speed, use default if not available
+        const speedKmph = vehicleDetails.speed && vehicleDetails.speed > 0 
+            ? vehicleDetails.speed 
+            : DEFAULT_BUS_SPEED_KMPH;
         
-        const response = await fetch(url);
+        // Create geo objects with radius
+        const geoA = {
+            lat: busLat,
+            lng: busLng,
+            radius: STOP_GEOFENCE_RADIUS_METERS // Current location geofence radius
+        };
         
-        if (!response.ok) {
-            throw new Error(`Distance Matrix API error: ${response.status} ${response.statusText}`);
+        const geoB = {
+            lat: destLat,
+            lng: destLng,
+            radius: STOP_GEOFENCE_RADIUS_METERS // Stop geofence radius
+        };
+        
+        // Calculate ETA
+        const etaResult = calculateETA(geoA, geoB, speedKmph);
+        
+        // Convert ETA from minutes to seconds
+        const durationSeconds = Math.max(1, Math.round(etaResult.etaMinutes * 60));
+        
+        // Store ETA
+        stopETAs[targetStopIndex] = durationSeconds;
+        
+        // If animation is playing and this ETA is for the current segment, update segment duration
+        if (isPlaying && targetStopIndex === index + 1 && step === 0) {
+            // We're at the start of the segment, update duration
+            currentSegmentDuration = durationSeconds * 1000;
+            currentSegmentDuration = Math.max(currentSegmentDuration, 1000);
         }
         
-        const result = await response.json();
+        // Update ETA list with new data
+        updateETAList();
         
-        if (result.status === 'OK' && result.rows && result.rows[0] && result.rows[0].elements[0]) {
-            const element = result.rows[0].elements[0];
-            
-            if (element.status === 'OK' && element.duration) {
-                const durationSeconds = element.duration.value;
-                stopETAs[targetStopIndex] = durationSeconds;
-                
-                // If animation is playing and this ETA is for the current segment, update segment duration
-                if (isPlaying && targetStopIndex === index + 1 && step === 0) {
-                    // We're at the start of the segment, update duration
-                    currentSegmentDuration = durationSeconds * 1000;
-                    currentSegmentDuration = Math.max(currentSegmentDuration, 1000);
-                }
-                
-                // Update ETA list with new data
-                updateETAList();
-                
-                return durationSeconds;
-            } else {
-                throw new Error(`Distance Matrix API returned status: ${element.status}`);
-            }
-        } else {
-            throw new Error('Invalid Distance Matrix API response format');
-        }
+        return durationSeconds;
     } catch (error) {
+        console.error('Error calculating ETA:', error);
         return null;
-    } finally {
-        window[calculationKey] = false;
     }
 }
 
@@ -867,19 +1135,40 @@ function updateVehicleDetailsDisplay() {
 // Fetch live bus location from API
 async function fetchLiveLocation() {
     try {
+        // Add timeout to prevent hanging
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        
         const response = await fetch(`${API_BASE_URL}/${VEHICLE_ID}/status?withAddress=true`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
                 'Authorization': `Bearer ${API_TOKEN}`
-            }
+            },
+            signal: controller.signal
         });
 
+        clearTimeout(timeoutId);
+
         if (!response.ok) {
-            throw new Error(`API error: ${response.status} ${response.statusText}`);
+            const errorText = await response.text().catch(() => 'Unknown error');
+            let errorMessage = `API error: ${response.status} ${response.statusText}`;
+            if (response.status === 401) {
+                errorMessage = 'Authentication failed - Check API token';
+            } else if (response.status === 404) {
+                errorMessage = `Vehicle ${VEHICLE_ID} not found`;
+            } else if (response.status >= 500) {
+                errorMessage = 'Server error - Please try again later';
+            }
+            throw new Error(errorMessage);
         }
 
         const result = await response.json();
+        
+        // Check if response has expected structure
+        if (!result) {
+            throw new Error('Empty API response');
+        }
         
         if (result.message === 'Success' && result.data) {
             const lat = parseFloat(result.data.latitude);
@@ -962,27 +1251,29 @@ async function fetchLiveLocation() {
                 
                 // Update bus position directly from live location (no animation)
                 // If bus is at a stop, position it exactly at that stop
-                if (isBusAtStop && currentStopIndex >= 0) {
-                    index = currentStopIndex;
-                    step = 0;
-                    // Position bus marker at the stop location
-                    busMarker.setLatLng([parseFloat(nearestStop.lat), parseFloat(nearestStop.lng)]);
-                } else {
-                    // Bus is moving - calculate position on route based on live location
-                    const animPos = calculateAnimationPositionFromLiveLocation(lat, lng);
-                    if (animPos) {
-                        index = animPos.index;
-                        step = animPos.step;
-                    } else if (currentStopIndex >= 0) {
-                        // Fallback: use current stop index
+                if (busMarker && map) {
+                    if (isBusAtStop && currentStopIndex >= 0) {
                         index = currentStopIndex;
                         step = 0;
+                        // Position bus marker at the stop location
+                        busMarker.setLatLng([parseFloat(nearestStop.lat), parseFloat(nearestStop.lng)]);
+                    } else {
+                        // Bus is moving - calculate position on route based on live location
+                        const animPos = calculateAnimationPositionFromLiveLocation(lat, lng);
+                        if (animPos) {
+                            index = animPos.index;
+                            step = animPos.step;
+                        } else if (currentStopIndex >= 0) {
+                            // Fallback: use current stop index
+                            index = currentStopIndex;
+                            step = 0;
+                        }
+                        // Update bus marker position directly from live location
+                        busMarker.setLatLng([lat, lng]);
                     }
-                    // Update bus marker position directly from live location
-                    busMarker.setLatLng([lat, lng]);
+                    
+                    map.panTo([lat, lng], { animate: true, duration: 0.5 });
                 }
-                
-                map.panTo([lat, lng], { animate: true, duration: 0.5 });
                 
                 // Update digital view position based on live location
                 updateIntegratedLineBusPosition();
@@ -999,15 +1290,8 @@ async function fetchLiveLocation() {
                         const shouldFetch = (i === 0) || (i > 0 && (!stopETAs[targetStopIndex] || stopChanged));
                         
                         if (shouldFetch) {
-                            // Fetch ETA in background (don't await to avoid blocking)
-                            fetchETAFromCurrentLocation(lat, lng, targetStopIndex).catch(err => {
-                                // Error fetching ETA - silently continue
-                            });
-                            
-                            // Add small delay between API calls to avoid rate limiting
-                            if (i < maxStopsToCalculate - 1) {
-                                await new Promise(resolve => setTimeout(resolve, 300));
-                            }
+                            // Calculate ETA locally (synchronous, no API call needed)
+                            calculateETAFromCurrentLocation(lat, lng, targetStopIndex);
                         }
                     }
                 }
@@ -1022,13 +1306,34 @@ async function fetchLiveLocation() {
                 
                 return { lat, lng, data: result.data };
             } else {
-                throw new Error('Invalid coordinates received');
+                throw new Error(`Invalid coordinates: lat=${result.data.latitude}, lng=${result.data.longitude}`);
             }
         } else {
-            throw new Error('Invalid API response format');
+            // Check what the response actually contains
+            if (result.message && result.message !== 'Success') {
+                throw new Error(`API returned: ${result.message}`);
+            } else if (!result.data) {
+                throw new Error('API response missing data field');
+            } else {
+                throw new Error('Invalid API response format');
+            }
         }
     } catch (error) {
-        updateStatus(`⚠️ Error: ${error.message}`);
+        // Handle different error types
+        let errorMessage = error.message;
+        
+        if (error.name === 'AbortError') {
+            errorMessage = 'Request timeout - API took too long to respond';
+        } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
+            errorMessage = 'Network error - Check internet connection';
+        }
+        
+        // Only update status if we haven't received a location yet, or if it's a new error
+        if (!hasReceivedFirstLocation || errorMessage !== 'Network error - Check internet connection') {
+            updateStatus(`⚠️ ${errorMessage} - Retrying...`);
+        }
+        
+        console.error('Error fetching live location:', error);
         return null;
     }
 }
