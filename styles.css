@@ -393,7 +393,8 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
     box-shadow: 0 4px 16px rgba(0,0,0,0.1);
     margin-bottom: 0; 
     overflow: hidden;
-    touch-action: pan-x pan-y pinch-zoom; /* Better map interaction on mobile */
+    border: none;
+    background: #f0f0f0;
 }
 
 @keyframes pulse {
