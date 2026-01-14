@@ -48,7 +48,7 @@ let isCalculatingETA = false; // Prevent multiple simultaneous ETA calculations
 
 // Store vehicle details (odometer, driver name, engineOn, and speed)
 let vehicleDetails = {
-    odometer: null,
+    // odometer: null, // Commented out - replaced with current date
     driverName: null,
     engineOn: null,
     speed: null
@@ -442,6 +442,11 @@ function initMap() {
     updateETAList();
     updateStatus('✅ Ready - Fetching live location...');
     
+    // Initialize current date display
+    updateCurrentDate();
+    // Update date every minute to keep it current
+    setInterval(updateCurrentDate, 60000);
+    
     // Fetch vehicle details for the default bus
     fetchVehicleDetails();
     
@@ -759,7 +764,7 @@ async function fetchVehicleDetails() {
         
         if (result.message === 'Success' && result.data) {
             // Extract odometer and driver name
-            vehicleDetails.odometer = result.data.odometer || null;
+            // vehicleDetails.odometer = result.data.odometer || null; // Commented out - replaced with current date
             vehicleDetails.driverName = result.data.driver1?.fullname || null;
             
             // Update display
@@ -772,7 +777,7 @@ async function fetchVehicleDetails() {
     } catch (error) {
         console.error('Error fetching vehicle details:', error);
         // Set to null on error
-        vehicleDetails.odometer = null;
+        // vehicleDetails.odometer = null; // Commented out - replaced with current date
         vehicleDetails.driverName = null;
         vehicleDetails.engineOn = null;
         vehicleDetails.speed = null;
@@ -781,27 +786,49 @@ async function fetchVehicleDetails() {
     }
 }
 
+// Update current date display
+function updateCurrentDate() {
+    const dateElement = document.getElementById('vehicle-date');
+    if (dateElement) {
+        const now = new Date();
+        const dateStr = now.toLocaleDateString([], {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            weekday: 'short'
+        });
+        dateElement.textContent = dateStr;
+        dateElement.style.opacity = '1';
+    }
+}
+
 // Update vehicle details display on screen
 function updateVehicleDetailsDisplay() {
-    const odometerElement = document.getElementById('vehicle-odometer');
+    // Odometer - commented out - replaced with current date
+    // const odometerElement = document.getElementById('vehicle-odometer');
+    const dateElement = document.getElementById('vehicle-date');
     const driverElement = document.getElementById('vehicle-driver');
     const engineElement = document.getElementById('vehicle-engine');
     const speedElement = document.getElementById('vehicle-speed');
     
-    if (odometerElement) {
-        if (vehicleDetails.odometer !== null) {
-            // Format odometer with thousand separators
-            const formattedOdometer = vehicleDetails.odometer.toLocaleString('en-US', {
-                maximumFractionDigits: 1,
-                minimumFractionDigits: 1
-            });
-            odometerElement.textContent = `${formattedOdometer} km`;
-            odometerElement.style.opacity = '1';
-        } else {
-            odometerElement.textContent = 'N/A';
-            odometerElement.style.opacity = '0.6';
-        }
-    }
+    // Odometer display - commented out
+    // if (odometerElement) {
+    //     if (vehicleDetails.odometer !== null) {
+    //         // Format odometer with thousand separators
+    //         const formattedOdometer = vehicleDetails.odometer.toLocaleString('en-US', {
+    //             maximumFractionDigits: 1,
+    //             minimumFractionDigits: 1
+    //         });
+    //         odometerElement.textContent = `${formattedOdometer} km`;
+    //         odometerElement.style.opacity = '1';
+    //     } else {
+    //         odometerElement.textContent = 'N/A';
+    //         odometerElement.style.opacity = '0.6';
+    //     }
+    // }
+    
+    // Current date display
+    updateCurrentDate();
     
     if (driverElement) {
         if (vehicleDetails.driverName) {
