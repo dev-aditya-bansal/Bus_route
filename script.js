@@ -1,49 +1,50 @@
-// Route data - embedded directly in JavaScript
+
+// Route 1 - Bus D01 (updated from route details table)
 const route1 = [
-    {lat: -6.26155, lng: 106.81327, sequence: 1, stop_name: 'Kemang', estimated_time: '11:00:00'},
-    {lat: -6.24357, lng: 106.86189, sequence: 2, stop_name: 'Carefour', estimated_time: '11:02:00'},
-    {lat: -6.1162, lng: 106.15478, sequence: 3, stop_name: 'Ciceri', estimated_time: '11:05:00'},
-    {lat: -6.12289, lng: 106.1585, sequence: 4, stop_name: 'Kebon Jahe', estimated_time: '11:07:00'}, // done
-    {lat: -6.12588, lng: 106.14047, sequence: 5, stop_name: 'Ciracas', estimated_time: '11:09:00'},
-    {lat: -6.01872, lng: 106.0558, sequence: 6, stop_name: 'Citraland', estimated_time: '11:11:00'},
-    {lat: -6.03439, lng: 105.93831, sequence: 7, stop_name: 'Kepandean', estimated_time: '11:13:00'},
-    {lat: -6.03439, lng: 105.93831, sequence: 8, stop_name: 'Akses Tol Serang Barat', estimated_time: '11:13:00'},
-    {lat: -6.03439, lng: 105.93831, sequence: 9, stop_name: 'Exit Tol Merak', estimated_time: '11:13:00'},
-    {lat: -6.03439, lng: 105.93831, sequence: 10, stop_name: 'FAM', estimated_time: '11:13:00'}
+    {lat: -6.041533, lng: 106.05655, sequence: 1, stop_name: 'Terminal Start (Bus Depo)', morning_time: '5:30 AM', evening_time: '8:30 PM'},
+    {lat: -6.1206, lng: 106.1835, sequence: 2, stop_name: 'Kemang', morning_time: '5:50 AM', evening_time: '8:10 PM'},
+    {lat: -6.121116, lng: 106.1722, sequence: 3, stop_name: 'Carrefour', morning_time: '6:10 AM', evening_time: '7:50 PM'},
+    {lat: -6.113511067, lng: 106.1548324, sequence: 4, stop_name: 'Ciceri', morning_time: '6:30 AM', evening_time: '7:30 PM'},
+    {lat: -6.105675327, lng: 106.1379679, sequence: 5, stop_name: 'Kebon Jahe', morning_time: '6:50 AM', evening_time: '7:10 PM'},
+    {lat: -6.12588, lng: 106.14047, sequence: 6, stop_name: 'Ciracas', morning_time: '7:10 AM', evening_time: '6:50 PM'}, // not avaialable
+    {lat: -6.127933, lng: 106.145516, sequence: 6, stop_name: 'Citraland', morning_time: '7:30 AM', evening_time: '6:30 PM'},
+    {lat: -6.089566, lng: 106.14415, sequence: 7, stop_name: 'Kepandaen', morning_time: '7:50 AM', evening_time: '6:10 PM'},
+    {lat: -6.1115, lng: 106.142433, sequence: 8, stop_name: 'Taman Widya asri', morning_time: '8:10 AM', evening_time: '5:50 PM'},
+    {lat: -5.969016, lng: 106.00435, sequence: 9, stop_name: 'FAM (Last Stop) Factory', morning_time: '8:30 AM', evening_time: '5:30 PM'}
 ];
 
 const route2 = [
-    {lat: -6.19871, lng: 106.74193, sequence: 1, stop_name: 'Sari Asih Belakang', estimated_time: '11:00:00'},
-    {lat: -6.23253, lng: 106.54487, sequence: 2, stop_name: 'Kaligandu', estimated_time: '11:02:00'},
-    {lat: -6.18556, lng: 106.45467, sequence: 3, stop_name: 'Bumi Agung', estimated_time: '11:05:00'},
-    {lat: -6.13811, lng: 106.29415, sequence: 4, stop_name: 'Kelapa Dua', estimated_time: '11:07:00'},
-    {lat: -6.12588, lng: 106.14047, sequence: 5, stop_name: 'Kepandean', estimated_time: '11:09:00'},
-    {lat: -6.01872, lng: 106.0558, sequence: 6, stop_name: 'Akses Tol Serang Barat', estimated_time: '11:11:00'},
-    {lat: -6.03439, lng: 105.93831, sequence: 7, stop_name: 'Exit Tol Merak', estimated_time: '11:13:00'},
-    {lat: -6.03439, lng: 105.93831, sequence: 8, stop_name: 'FAM', estimated_time: '11:13:00'}
+    {lat: -6.19871, lng: 106.74193, sequence: 1, stop_name: 'Sari Asih Belakang', morning_time: '11:00:00'},
+    {lat: -6.23253, lng: 106.54487, sequence: 2, stop_name: 'Kaligandu', morning_time: '11:02:00'},
+    {lat: -6.18556, lng: 106.45467, sequence: 3, stop_name: 'Bumi Agung', morning_time: '11:05:00'},
+    {lat: -6.13811, lng: 106.29415, sequence: 4, stop_name: 'Kelapa Dua', morning_time: '11:07:00'},
+    {lat: -6.12588, lng: 106.14047, sequence: 5, stop_name: 'Kepandean', morning_time: '11:09:00'},
+    {lat: -6.01872, lng: 106.0558, sequence: 6, stop_name: 'Akses Tol Serang Barat', morning_time: '11:11:00'},
+    {lat: -6.03439, lng: 105.93831, sequence: 7, stop_name: 'Exit Tol Merak', morning_time: '11:13:00'},
+    {lat: -6.03439, lng: 105.93831, sequence: 8, stop_name: 'FAM', morning_time: '11:13:00'}
 ];
 
 const route3 = [
-    {lat: -6.19871, lng: 106.74193, sequence: 1, stop_name: 'PCI', estimated_time: '11:00:00'},
-    {lat: -6.23253, lng: 106.54487, sequence: 2, stop_name: 'Perumnas', estimated_time: '11:02:00'},
-    {lat: -6.18556, lng: 106.45467, sequence: 3, stop_name: 'Palas', estimated_time: '11:05:00'},
-    {lat: -6.13811, lng: 106.29415, sequence: 4, stop_name: 'Pagebangan', estimated_time: '11:07:00'},
-    {lat: -6.12588, lng: 106.14047, sequence: 5, stop_name: 'Mesjid Agung', estimated_time: '11:09:00'},
-    {lat: -6.01872, lng: 106.0558, sequence: 6, stop_name: 'Simpang', estimated_time: '11:11:00'},
-    {lat: -6.03439, lng: 105.93831, sequence: 7, stop_name: 'Damkar', estimated_time: '11:13:00'},
-    {lat: -6.03439, lng: 105.93831, sequence: 8, stop_name: 'FAM', estimated_time: '11:13:00'}
+    {lat: -6.19871, lng: 106.74193, sequence: 1, stop_name: 'PCI', morning_time: '11:00:00'},
+    {lat: -6.23253, lng: 106.54487, sequence: 2, stop_name: 'Perumnas', morning_time: '11:02:00'},
+    {lat: -6.18556, lng: 106.45467, sequence: 3, stop_name: 'Palas', morning_time: '11:05:00'},
+    {lat: -6.13811, lng: 106.29415, sequence: 4, stop_name: 'Pagebangan', morning_time: '11:07:00'},
+    {lat: -6.12588, lng: 106.14047, sequence: 5, stop_name: 'Mesjid Agung', morning_time: '11:09:00'},
+    {lat: -6.01872, lng: 106.0558, sequence: 6, stop_name: 'Simpang', morning_time: '11:11:00'},
+    {lat: -6.03439, lng: 105.93831, sequence: 7, stop_name: 'Damkar', morning_time: '11:13:00'},
+    {lat: -6.03439, lng: 105.93831, sequence: 8, stop_name: 'FAM', morning_time: '11:13:00'}
 ];
 
 const route4 = [
-    {lat: -6.19871, lng: 106.74193, sequence: 1, stop_name: 'FAM', estimated_time: '11:00:00'},
-    {lat: -6.23253, lng: 106.54487, sequence: 2, stop_name: 'Damkar', estimated_time: '11:02:00'},
-    {lat: -6.18556, lng: 106.45467, sequence: 3, stop_name: 'Krakatau Junction', estimated_time: '11:05:00'},
-    {lat: -6.13811, lng: 106.29415, sequence: 4, stop_name: 'Transmart', estimated_time: '11:07:00'},
-    {lat: -6.12588, lng: 106.14047, sequence: 5, stop_name: 'Simpang', estimated_time: '11:09:00'},
-    {lat: -6.01872, lng: 106.0558, sequence: 6, stop_name: 'Krenceng lewat depan (Jalan Raya Utama Anyer)', estimated_time: '11:11:00'},
-    {lat: -6.03439, lng: 105.93831, sequence: 7, stop_name: 'Warnasari', estimated_time: '11:13:00'},
-    {lat: -6.03439, lng: 105.93831, sequence: 8, stop_name: 'Oktip', estimated_time: '11:13:00'},
-    {lat: -6.03439, lng: 105.93831, sequence: 9, stop_name: 'Ex Sari Manis', estimated_time: '11:13:00'}
+    {lat: -6.19871, lng: 106.74193, sequence: 1, stop_name: 'FAM', morning_time: '11:00:00'},
+    {lat: -6.23253, lng: 106.54487, sequence: 2, stop_name: 'Damkar', morning_time: '11:02:00'},
+    {lat: -6.18556, lng: 106.45467, sequence: 3, stop_name: 'Krakatau Junction', morning_time: '11:05:00'},
+    {lat: -6.13811, lng: 106.29415, sequence: 4, stop_name: 'Transmart', morning_time: '11:07:00'},
+    {lat: -6.12588, lng: 106.14047, sequence: 5, stop_name: 'Simpang', morning_time: '11:09:00'},
+    {lat: -6.01872, lng: 106.0558, sequence: 6, stop_name: 'Krenceng lewat depan (Jalan Raya Utama Anyer)', morning_time: '11:11:00'},
+    {lat: -6.03439, lng: 105.93831, sequence: 7, stop_name: 'Warnasari', morning_time: '11:13:00'},
+    {lat: -6.03439, lng: 105.93831, sequence: 8, stop_name: 'Oktip', morning_time: '11:13:00'},
+    {lat: -6.03439, lng: 105.93831, sequence: 9, stop_name: 'Ex Sari Manis', morning_time: '11:13:00'}
 ];
 
 // Global variables
@@ -83,7 +84,7 @@ function getRouteWithTimeReversal(originalRoute) {
                 lng: stop.lng,
                 sequence: index + 1,
                 stop_name: stop.stop_name,
-                estimated_time: stop.estimated_time
+                morning_time: stop.morning_time
             };
         });
         return reversedRoute;
@@ -95,7 +96,7 @@ function getRouteWithTimeReversal(originalRoute) {
         lng: stop.lng,
         sequence: stop.sequence,
         stop_name: stop.stop_name,
-        estimated_time: stop.estimated_time
+        morning_time: stop.morning_time
     }));
 }
 
