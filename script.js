@@ -47,7 +47,7 @@ const route4 = [
 ];
 
 // Global variables
-let mapIframe, animationTimeout, liveLocationInterval;
+let map, busMarker, animationTimeout, liveLocationInterval;
 let isPlaying = false, index = -1, step = 0; // Animation disabled - position based on live location only
 const STEPS_PER_SEGMENT = 60;
 const DURATION_PER_SEGMENT = 2500; // Fallback duration in ms (not used - no animation)
@@ -101,10 +101,10 @@ function getRouteWithTimeReversal(originalRoute) {
 
 // Bus data - list of available buses
 const buses = [
-    { id: 83089, name: 'A 7702 S - D01', route: route1, live_link: "https://multilintaspersada.mceasy.com/fleet/live-track/34895?shToken=285i29" },
-    { id: 88440, name: 'A 7696 S - D02', route: route2, live_link: "https://multilintaspersada.mceasy.com/fleet/live-track/34896?shToken=JxSORo" },
-    { id: 92066, name: 'B 7012 XXA - D05', route: route3, live_link: "https://multilintaspersada.mceasy.com/fleet/live-track/34897?shToken=gK1NlD" },
-    { id: 69153, name: 'B 1948 PDJ - D06', route: route4, live_link: "https://multilintaspersada.mceasy.com/fleet/live-track/34898?shToken=OiO9Ii" },
+    { id: 83089, name: 'A 7702 S - D01', route: route1 },
+    { id: 88440, name: 'A 7696 S - D02', route: route2 },
+    { id: 92066, name: 'B 7012 XXA - D05', route: route3 },
+    { id: 69153, name: 'B 1948 PDJ - D06', route: route4 },
 ];
 
 // API Configuration
@@ -443,9 +443,53 @@ function selectBus(busId) {
     // Stop current tracking
     stopLiveLocationTracking();
     
-    // Update iframe src with selected bus's live_link
-    if (selectedBus && selectedBus.live_link && mapIframe) {
-        mapIframe.src = selectedBus.live_link;
+    // Reinitialize map with new route
+    if (map && route.length > 0) {
+        // Clear existing map layers (markers and polylines)
+        map.eachLayer((layer) => {
+            if (layer instanceof L.Marker || layer instanceof L.Polyline) {
+                map.removeLayer(layer);
+            }
+        });
+        
+        // Add new route line
+        const latLngs = route.map(p => [parseFloat(p.lat), parseFloat(p.lng)]);
+        L.polyline(latLngs, {color: '#e74c3c', weight: 4}).addTo(map);
+        
+        // Add new stop markers with ETA popups
+        route.forEach((stop, i) => {
+            const stopIcon = L.divIcon({
+                html: `<span style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-weight: bold; font-size: 14px;">${stop.sequence}</span>`, 
+                className: 'stop-icon', 
+                iconSize: [28, 28], 
+                iconAnchor: [14, 14]
+            });
+            const marker = L.marker([parseFloat(stop.lat), parseFloat(stop.lng)], {icon: stopIcon}).addTo(map);
+            
+            // ETA popup for each stop
+            const remaining = i * (DURATION_PER_SEGMENT / 1000 / 60);
+            marker.bindPopup(`
+                <b>${stop.stop_name}</b><br>
+                ETA: ${Math.ceil(remaining)} min<br>
+                Stop ${stop.sequence}/${route.length}
+            `);
+        });
+        
+        // Reset bus marker position to start of new route
+        const start = [parseFloat(route[0].lat), parseFloat(route[0].lng)];
+        if (busMarker) {
+            busMarker.setLatLng(start);
+        } else {
+            // Create bus marker if it doesn't exist
+            const busIcon = L.divIcon({
+                html: '🚌', 
+                className: 'bus-icon', 
+                iconSize: [36, 36], 
+                iconAnchor: [18, 18]
+            });
+            busMarker = L.marker(start, { icon: busIcon }).addTo(map);
+        }
+        map.panTo(start, { animate: true, duration: 0.5 });
     }
     
     // Update ETA list
@@ -473,18 +517,47 @@ function initMap() {
         route = getRouteWithTimeReversal(defaultBus.route);
     }
     
-    // Get iframe element
-    mapIframe = document.getElementById('map');
-    
-    // Set iframe src based on default bus's live_link
-    if (defaultBus && defaultBus.live_link && mapIframe) {
-        mapIframe.src = defaultBus.live_link;
-    }
-    
     if (route.length === 0) { 
         document.getElementById('eta-list').innerHTML = '<div style="text-align:center;color:#666;">No route data</div>';
         return; 
     }
+
+    const start = [parseFloat(route[0].lat), parseFloat(route[0].lng)];
+    
+    // Small zoom level
+    map = L.map('map').setView(start, 10);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18, attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    // Route line
+    const latLngs = route.map(p => [parseFloat(p.lat), parseFloat(p.lng)]);
+    L.polyline(latLngs, {color: '#e74c3c', weight: 4}).addTo(map);
+
+    // Bus marker
+    const busIcon = L.divIcon({
+        html: '🚌', className: 'bus-icon', 
+        iconSize: [36, 36], iconAnchor: [18, 18]
+    });
+    busMarker = L.marker(start, { icon: busIcon }).addTo(map);
+
+    // Add stop markers WITH ETA POPUPS
+    route.forEach((stop, i) => {
+        const stopIcon = L.divIcon({
+            html: `<span style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-weight: bold; font-size: 14px;">${stop.sequence}</span>`, className: 'stop-icon', 
+            iconSize: [28, 28], iconAnchor: [14, 14]
+        });
+        const marker = L.marker([parseFloat(stop.lat), parseFloat(stop.lng)], {icon: stopIcon}).addTo(map);
+        
+        // ETA popup for each stop
+        const remaining = i * (DURATION_PER_SEGMENT / 1000 / 60);
+        marker.bindPopup(`
+            <b>${stop.stop_name}</b><br>
+            ETA: ${Math.ceil(remaining)} min<br>
+            Stop ${stop.sequence}/${route.length}
+        `);
+    });
 
     // Populate bus dropdown
     populateBusDropdown();
@@ -539,8 +612,58 @@ function checkAndUpdateRouteDirection() {
         if (selectedBus && selectedBus.route) {
             route = getRouteWithTimeReversal(selectedBus.route);
             
-            // Reset state for new route direction (iframe handles map display)
-            if (route.length > 0) {
+            // Reinitialize map with new route direction
+            if (map && route.length > 0) {
+                // Store bus marker reference before clearing
+                const busMarkerExists = busMarker !== null && busMarker !== undefined;
+                const busMarkerLatLng = busMarker ? busMarker.getLatLng() : null;
+                
+                // Clear existing map layers (markers and polylines, but preserve tile layer)
+                map.eachLayer((layer) => {
+                    if (layer instanceof L.Marker || layer instanceof L.Polyline) {
+                        map.removeLayer(layer);
+                    }
+                });
+                
+                // Reset bus marker reference if it was removed
+                if (busMarkerExists) {
+                    busMarker = null;
+                }
+                
+                // Add new route line
+                const latLngs = route.map(p => [parseFloat(p.lat), parseFloat(p.lng)]);
+                L.polyline(latLngs, {color: '#e74c3c', weight: 4}).addTo(map);
+                
+                // Add new stop markers with ETA popups
+                route.forEach((stop, i) => {
+                    const stopIcon = L.divIcon({
+                        html: `<span style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-weight: bold; font-size: 14px;">${stop.sequence}</span>`, 
+                        className: 'stop-icon', 
+                        iconSize: [28, 28], 
+                        iconAnchor: [14, 14]
+                    });
+                    const marker = L.marker([parseFloat(stop.lat), parseFloat(stop.lng)], {icon: stopIcon}).addTo(map);
+                    
+                    // ETA popup for each stop
+                    const remaining = i * (DURATION_PER_SEGMENT / 1000 / 60);
+                    marker.bindPopup(`
+                        <b>${stop.stop_name}</b><br>
+                        ETA: ${Math.ceil(remaining)} min<br>
+                        Stop ${stop.sequence}/${route.length}
+                    `);
+                });
+                
+                // Reset bus marker position to start of new route
+                const start = [parseFloat(route[0].lat), parseFloat(route[0].lng)];
+                const busIcon = L.divIcon({
+                    html: '🚌', 
+                    className: 'bus-icon', 
+                    iconSize: [36, 36], 
+                    iconAnchor: [18, 18]
+                });
+                busMarker = L.marker(start, { icon: busIcon }).addTo(map);
+                map.panTo(start, { animate: true, duration: 0.5 });
+                
                 // Reset state for new route direction
                 currentBusLocation = null;
                 currentStopIndex = -1;
@@ -1162,21 +1285,30 @@ async function fetchLiveLocation() {
                     step = 0;
                 }
                 
-                // Update bus position tracking (iframe handles map display)
-                if (isBusAtStop && currentStopIndex >= 0) {
-                    index = currentStopIndex;
-                    step = 0;
-                } else {
-                    // Bus is moving - calculate position on route based on live location
-                    const animPos = calculateAnimationPositionFromLiveLocation(lat, lng);
-                    if (animPos) {
-                        index = animPos.index;
-                        step = animPos.step;
-                    } else if (currentStopIndex >= 0) {
-                        // Fallback: use current stop index
+                // Update bus position directly from live location (no animation)
+                // If bus is at a stop, position it exactly at that stop
+                if (busMarker && map) {
+                    if (isBusAtStop && currentStopIndex >= 0) {
                         index = currentStopIndex;
                         step = 0;
+                        // Position bus marker at the stop location
+                        busMarker.setLatLng([parseFloat(nearestStop.lat), parseFloat(nearestStop.lng)]);
+                    } else {
+                        // Bus is moving - calculate position on route based on live location
+                        const animPos = calculateAnimationPositionFromLiveLocation(lat, lng);
+                        if (animPos) {
+                            index = animPos.index;
+                            step = animPos.step;
+                        } else if (currentStopIndex >= 0) {
+                            // Fallback: use current stop index
+                            index = currentStopIndex;
+                            step = 0;
+                        }
+                        // Update bus marker position directly from live location
+                        busMarker.setLatLng([lat, lng]);
                     }
+                    
+                    map.panTo([lat, lng], { animate: true, duration: 0.5 });
                 }
                 
                 // Update digital view position based on live location
