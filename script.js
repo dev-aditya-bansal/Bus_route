@@ -10,7 +10,7 @@ const route1 = [
     {lat: -6.127933, lng: 106.145516, sequence: 6, stop_name: 'Citraland', morning_time: '7:30 AM', evening_time: '6:30 PM'},
     {lat: -6.089566, lng: 106.14415, sequence: 7, stop_name: 'Kepandaen', morning_time: '7:50 AM', evening_time: '6:10 PM'},
     {lat: -6.1115, lng: 106.142433, sequence: 8, stop_name: 'Taman Widya asri', morning_time: '8:10 AM', evening_time: '5:50 PM'},
-    {lat: -5.969016, lng: 106.00435, sequence: 9, stop_name: 'FAM (Last Stop) Factory', morning_time: '8:30 AM', evening_time: '5:30 PM'}
+    // {lat: -5.969016, lng: 106.00435, sequence: 9, stop_name: 'FAM (Last Stop) Factory', morning_time: '8:30 AM', evening_time: '5:30 PM'}
 ];
 
 const route2 = [
@@ -702,6 +702,9 @@ function updateETAList() {
         let etaTime = '';
         let progressText = '';
         
+        // First stop - only show stop name, no time or info
+        const isFirstStop = (i === 0);
+        
         // Determine if this is the current stop based on live location
         const isCurrentStop = (currentStopIndex >= 0 && i === currentStopIndex);
         const isNextStop = (currentStopIndex >= 0 && i === currentStopIndex + 1);
@@ -709,7 +712,10 @@ function updateETAList() {
         const hasPassed = (currentStopIndex >= 0 && i < currentStopIndex) || (currentStopIndex < 0 && i < index);
         const hasETA = stopETAs[i] !== undefined;
         
-        if (isCurrentStop) {
+        if (isFirstStop) {
+            // First stop - no ETA display
+            etaDisplay = '';
+        } else if (isCurrentStop) {
             // Current stop - show arrival time (record it if not already recorded)
             // Note: Arrival time will be set from API's lastPacket when location is fetched
             if (stopArrivalTimes[i]) {
@@ -760,7 +766,8 @@ function updateETAList() {
         
         // Calculate minutes remaining for wifi box
         let wifiBoxHTML = '';
-        if (!hasPassed && !isCurrentStop) {
+        // First stop - no wifi box
+        if (!isFirstStop && !hasPassed && !isCurrentStop) {
             let minutesRemaining = null;
             if (hasETA && currentBusLocation) {
                 // Use calculated ETA
@@ -808,7 +815,7 @@ function updateETAList() {
                     <i class="bi bi-bus-front stop-icon-small"></i>
                     <div class="stop-info-content">
                         <div class="stop-name">${stop.stop_name}</div>
-                        <div class="eta-time">${etaDisplay}</div>
+                        ${etaDisplay ? `<div class="eta-time">${etaDisplay}</div>` : ''}
                     </div>
                 </div>
             </div>
